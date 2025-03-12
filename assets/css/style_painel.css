@@ -1,0 +1,48 @@
+body {
+    background-color: #f8f9fa;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.header {
+    background: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 2px solid #ccc;
+}
+.main-content {
+    display: flex;
+    flex-grow: 1;
+}
+.video-section {
+    flex: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+}
+.info-section {
+    flex: 2;
+    background: #6a0dad;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.history-section {
+    flex: 1;
+    background: #e9ecef;
+    padding: 20px;
+    overflow-y: auto;
+}
+.history-item {
+    background: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
