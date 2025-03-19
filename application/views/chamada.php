@@ -91,13 +91,13 @@
                             <select id="senha" name="senha" class="form-select">
                                 <option value="">Selecione a senha...</option>
                                 <?php foreach ($senhas as $s): ?>
-                                    <option value="<?= htmlspecialchars($s->senha) ?>"><?= htmlspecialchars($s->senha) ?>
+                                    <option value="<?= htmlspecialchars($s->id) ?>"><?= htmlspecialchars($s->senha) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
 
-                        <button onclick="chamar('senha')">Chamar Senha</button>
+                        <button type="button" onclick="chamarSenha()">Chamar Senha</button>
 
                         <div id="ultimaChamadaSenha">
                             <h4>Última Chamada:</h4>
@@ -150,31 +150,104 @@
     </div>
 
     <script>
-     function chamar(tipo) {
-    let mensagem = "";
+        function chamar(tipo) {
+            let guiche = document.getElementById('guiche').value;
+            let senha = document.getElementById('senha').value;
+            let paciente = document.getElementById('paciente').value;
+            let sala = document.getElementById('sala').value;
 
-    if (tipo === "senha") {
-        mensagem = "Senha CN-01, guichê 01"; // Pegaria do banco na prática
-    } else if (tipo === "paciente") {
-        mensagem = "Paciente Carlos Eduardo, consultório 03";
+            if (tipo === "senha" && (!guiche || !senha)) {
+                alert("Selecione um guichê e uma senha!");
+                return;
+            }
+            if (tipo === "paciente" && (!paciente || !sala)) {
+                alert("Selecione um paciente e uma sala!");
+                return;
+            }
+
+
+            if (tipo === "senha") {
+                mensagem = `Senha ${senha}, guichê ${guiche}`;
+            } else if (tipo === "paciente") {
+                mensagem = `Paciente ${paciente}, ${sala}`;
+            }
+
+            fetch("<?php echo base_url('chamada/registrar_chamada'); ?>", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `tipo=${tipo}&mensagem=${encodeURIComponent(mensagem)}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Chamada enviada para o painel!");
+                        // Atualiza a interface do usuário
+                        if (tipo === "senha") {
+                            document.getElementById('senhaChamada').innerText = senha;
+                            document.getElementById('guicheChamada').innerText = guiche;
+                        } else if (tipo === "paciente") {
+                            document.getElementById('pacienteChamado').innerText = paciente;
+                            document.getElementById('salaChamado').innerText = sala;
+                        }
+                    } else {
+                        alert("Erro ao registrar chamada!");
+                    }
+                })
+                .catch(error => console.error("Erro:", error));
+        }
+
+        // $('#senha').on('change', function () {
+        //     let senha = $(this).val();
+        //     $.ajax({
+        //         url: "<?= base_url('index.php/painel/chamar_senha'); ?>",
+        //         type: "POST",
+        //         data: { senha_id: senha },
+        //         dataType: "json",
+        //         success: function (response) {
+        //             if (response.status === "success") {
+        //                 alert("Senha " + response.senha + " chamada!");
+        //                 // Atualiza a interface do usuário
+        //                 document.getElementById('senhaChamada').innerText = response.senha;
+        //             } else {
+        //                 alert("Erro ao chamar senha!");
+        //             }
+        //         }
+        //     });
+        // });
+
+        function chamarSenha() {
+    let senha = document.getElementById('senha').value;
+    let guiche = document.getElementById('guiche').value;
+
+    if (!senha || !guiche) {
+        alert("Selecione uma senha e um guichê!");
+        return;
     }
 
-    fetch("<?php echo base_url('senhas/registrar_chamada'); ?>", {
+    fetch("<?php echo base_url('chamada/chamar'); ?>", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `tipo=${tipo}&mensagem=${encodeURIComponent(mensagem)}`
+        body: new URLSearchParams({
+            tipo: "senha",
+            senha: senha,
+            guiche: guiche
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
             alert("Chamada enviada para o painel!");
+            atualizarPainel();
         } else {
-            alert("Erro ao registrar chamada!");
+            alert("Erro ao chamar senha: " + data.mensagem);
         }
     })
     .catch(error => console.error("Erro:", error));
 }
 
+
+
     </script>
-    </body>
-    </html>
+</body>
+
+</html>

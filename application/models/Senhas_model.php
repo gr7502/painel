@@ -44,17 +44,25 @@ class Senhas_model extends CI_Model {
     public function update_status_senha($senha, $status) {
         $this->db->where('senha', $senha)->update('senhas', ['status' => $status]);
     }
-    public function get_senha_atual()
-    {
-        $this->db->select('senha, guiche');
-        $this->db->from('senhas');
-        $this->db->where('status', 'chamada');
-        $this->db->order_by('id', 'DESC');
-        $this->db->limit(1);
+    // Modelo Senhas_model.php
 
-        $query = $this->db->get();
-        return $query->row();
+public function get_senha_atual() {
+    // Exemplo de consulta para pegar a senha mais recente que esteja ativa
+    $this->db->select('senha, guiche');
+    $this->db->from('senhas');
+    $this->db->where('status', 'pendente');  // Ou outro critério de status
+    $this->db->order_by('id', 'desc');    // Ordena pela ID (ou outro campo)
+    $this->db->limit(1);                  // Limita a 1 resultado
+
+    $query = $this->db->get();
+
+    // Verifica se existe algum resultado
+    if ($query->num_rows() > 0) {
+        return $query->row();  // Retorna o primeiro resultado encontrado
     }
+
+    return null;  // Retorna null caso não tenha nenhuma senha ativa
+}
 
     public function get_paciente_atual()
     {

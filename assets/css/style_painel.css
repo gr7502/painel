@@ -1,48 +1,111 @@
+/* Estilos gerais */
 body {
-    background-color: #f8f9fa;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fadc;
 }
-.header {
-    background: white;
-    padding: 15px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    border-bottom: 2px solid #ccc;
+
+/* Cabeçalho */
+.info-consulta-header {
+  font-size: large;
+  padding: 15px;
+  background-color: #4c259f !important;
+  color: #fff;
+  text-align: center;
 }
-.main-content {
-    display: flex;
-    flex-grow: 1;
+
+.info-consulta-header strong {
+  display: block;
+  font-size: 1.2em;
 }
-.video-section {
-    flex: 3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
+
+/* Vídeo */
+.video-container {
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
 }
-.info-section {
-    flex: 2;
-    background: #6a0dad;
-    color: white;
-    font-size: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+
+/* Últimos chamados */
+aside {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-.history-section {
-    flex: 1;
-    background: #e9ecef;
-    padding: 20px;
-    overflow-y: auto;
+
+aside h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #4c259f;
+  text-align: center;
+  margin-bottom: 20px;
 }
-.history-item {
-    background: white;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
+
+.chamada {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chamada .senha,
+.chamada .paciente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.chamada .senha .fw-bold,
+.chamada .paciente-info .fw-bold {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.chamada .senha .numero-senha,
+.chamada .paciente-info .nome {
+  font-size: 1.1em;
+  font-weight: bold;
+ 
+}
+
+.chamada .guiche,
+.chamada .destino {
+  font-size: 0.9em;
+  color: #333;
+}
+
+/* Estilo para a chamada em destaque */
+.chamada.destaque {
+  background-color: #4c259f !important; /* Roxo */
+  
+}
+
+.chamada.destaque .senha .fw-bold,
+.chamada.destaque .senha .numero-senha,
+.chamada.destaque .guiche {
+  background-color: #4c259f !important;
+  color: #fff;
+}
+
+/* Estilo para as chamadas de pacientes */
+.chamada.paciente {
+  background-color: #e9ecef;
+}
+
+/* Rodapé */
+.footer {
+  font-size: medium;
+  background-color: #e2e2e2 !important;
+  color: #000000 !important;
+  padding: 10px 0;
+}
+
+.footer strong {
+  color: #4c259f;
+}
+
+.chm_primary {
+  background-color: #fff !important;
+  color: #000000 !important;
 }

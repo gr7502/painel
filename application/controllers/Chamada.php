@@ -6,6 +6,7 @@ class Chamada extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('Senhas_model');
+        $this->load->library('session');
     }
 
     public function index() {
@@ -18,39 +19,30 @@ class Chamada extends CI_Controller {
         $data['ultimos_chamados'] = !empty($ultimos_chamados) ? $ultimos_chamados : []; 
         $this->load->view('chamada', $data);
     }
-
     public function chamar() {
-        {
-            $this->load->model('Senha_model');
-            
-            $tipo = $this->input->get('tipo'); // Recebe 'senha' ou 'paciente'
-            
-            if ($tipo == 'senha') {
-                $dados = $this->Senha_model->get_senha_atual();
-                if ($dados) {
-                    $response = [
-                        'mensagem' => "Senha: {$dados->senha}, guichê {$dados->guiche}"
-                    ];
-                } else {
-                    $response = ['erro' => 'Nenhuma senha chamada no momento.'];
-                }
-            } elseif ($tipo == 'paciente') {
-                $dados = $this->Senha_model->get_paciente_atual();
-                if ($dados) {
-                    $response = [
-                        'mensagem' => "Paciente: {$dados->nome_paciente}, consultório {$dados->consultorio}"
-                    ];
-                } else {
-                    $response = ['erro' => 'Nenhum paciente chamado no momento.'];
-                }
-            } else {
-                $response = ['erro' => 'Tipo de chamada inválido.'];
-            }
-        
-            echo json_encode($response);
+        header('Content-Type: application/json');
+        $tipo = $this->input->post('tipo');
+        $senha = $this->input->post('senha');
+        $guiche = $this->input->post('guiche');
+    
+        if ($tipo === 'senha' && $senha && $guiche) {
+            $mensagem = "Senha: {$senha}, dirija-se ao guichê {$guiche}";
+    
+            // Salvar no banco de dados (crie uma tabela 'chamadas' se necessário)
+            $this->db->insert('chamadas', [
+                'tipo' => 'senha',
+                'mensagem' => $mensagem,
+                'data_hora' => date('Y-m-d H:i:s')
+            ]);
+    
+            echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
+        } else {
+            echo json_encode(['status' => 'error', 'mensagem' => 'Dados inválidos!']);
         }
     }
-
+    
+    
+    
     public function salvar_chamada($tipo, $dados)
 {
     $data = [
@@ -82,9 +74,9 @@ class Chamada extends CI_Controller {
 
    
     public function senha_chamada(){
-    $this->load->model('Senha_model'); // Carregar o model
+    $this->load->model('Senhas_model'); // Carregar o model
 
-    $senha = $this->Senha_model->get_senha_atual(); // Buscar a senha atual
+    $senha = $this->Senhas_model->get_senha_atual(); // Buscar a senha atual
 
     if ($senha) {
         $response = [
@@ -100,6 +92,48 @@ class Chamada extends CI_Controller {
 
     echo json_encode($response);
 }
+
+public function registrar_chamada() {
+    $tipo = $this->input->post('tipo');
+    $mensagem = $this->input->post('mensagem');
+
+    // Salvar a mensagem na sessão
+    $this->session->set_userdata('ultima_chamada', $mensagem);
+
+    echo json_encode(['status' => 'success']);
+}
+
+
+public function getUltimaChamada() {
+    header('Content-Type: application/json');
+
+    $query = $this->db->order_by('data_hora', 'DESC')->get('chamadas', 1);
+    $ultimaChamada = $query->row();
+
+    if ($ultimaChamada) {
+        echo json_encode(['status' => 'success', 'mensagem' => $ultimaChamada->mensagem]);
+    } else {
+        echo json_encode(['status' => 'error', 'mensagem' => 'Nenhuma senha chamada']);
+    }
+}
+
+public function chamar_senha()
+{
+    $senha_id = $this->input->post('senha_id'); // Recebe a senha via POST
+
+    // Busca os dados da senha no banco de dados
+    $senha = $this->db->get_where('senhas', ['id' => $senha_id])->row();
+
+    if ($senha) {
+        // Salva a senha chamada na sessão
+        $this->session->set_userdata('senha_chamada', $senha->nome);
+
+        echo json_encode(['status' => 'success', 'senha' => $senha->nome]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Senha não encontrada']);
+    }
+}
+
 
 
 }
