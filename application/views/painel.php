@@ -15,7 +15,7 @@
         <div class="row">
             <div class="col-md-12 text-center">
                 <div id="mensagemSenha">
-                    <span>Última senha chamada:</span> 
+                    <span>Última chamada:</span> <br>
                     <strong id="senhaChamada">Carregando...</strong>
                 </div>
             </div>
@@ -26,13 +26,13 @@
   <div class="container-fluid flex-grow-1">
     <main class="row mt-4">
       <div class="col-md-8">
-        <div class="video-container ratio ratio-16x9">
+        <div class="video-container ">
           <video controls class="w-100">
-            <source src="video.mp4" type="video/mp4">
+            <source src="<?= base_url('assets/videos/1.mp4'); ?>" type="video/mp4">
           </video>
         </div>
       </div>
-      <aside class="col-md-4">
+      <aside class="col-md">
         <h2 class="text-center mb-4">ÚLTIMOS CHAMADOS</h2>
         <div class="chamada bg-light p-3 mb-3 rounded">
           <div class="senha">

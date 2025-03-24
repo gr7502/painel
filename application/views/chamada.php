@@ -90,15 +90,15 @@
                             <label for="senha" class="form-label">Senha:</label>
                             <select id="senha" name="senha" class="form-select">
                                 <option value="">Selecione a senha...</option>
+                                <option value="CN - 01">CN -01</option>
                                 <?php foreach ($senhas as $s): ?>
-                                    <option value="<?= htmlspecialchars($s->id) ?>"><?= htmlspecialchars($s->senha) ?>
+                                    <option value="<?= htmlspecialchars($s->senha) ?>"><?= htmlspecialchars($s->senha) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
 
-                        <button type="button" onclick="chamarSenha()">Chamar Senha</button>
-
+                        <button type="button" onclick="chamar('senha')">Chamar Senha</button>
                         <div id="ultimaChamadaSenha">
                             <h4>Última Chamada:</h4>
                             <p id="senhaChamada">Aguardando...</p>
@@ -135,7 +135,8 @@
                             </select>
                         </div>
 
-                        <button onclick="chamar('paciente')">Chamar Paciente</button>
+                        <button type="button" onclick="chamar('paciente')">Chamar Senha</button>
+
 
                         <div id="ultimaChamadaPaciente">
                             <h4>Última Chamada:</h4>
@@ -150,77 +151,20 @@
     </div>
 
     <script>
+
         function chamar(tipo) {
-            let guiche = document.getElementById('guiche').value;
-            let senha = document.getElementById('senha').value;
-            let paciente = document.getElementById('paciente').value;
-            let sala = document.getElementById('sala').value;
-
-            if (tipo === "senha" && (!guiche || !senha)) {
-                alert("Selecione um guichê e uma senha!");
-                return;
-            }
-            if (tipo === "paciente" && (!paciente || !sala)) {
-                alert("Selecione um paciente e uma sala!");
-                return;
-            }
-
-
-            if (tipo === "senha") {
-                mensagem = `Senha ${senha}, guichê ${guiche}`;
-            } else if (tipo === "paciente") {
-                mensagem = `Paciente ${paciente}, ${sala}`;
-            }
-
-            fetch("<?php echo base_url('chamada/registrar_chamada'); ?>", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `tipo=${tipo}&mensagem=${encodeURIComponent(mensagem)}`
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        alert("Chamada enviada para o painel!");
-                        // Atualiza a interface do usuário
-                        if (tipo === "senha") {
-                            document.getElementById('senhaChamada').innerText = senha;
-                            document.getElementById('guicheChamada').innerText = guiche;
-                        } else if (tipo === "paciente") {
-                            document.getElementById('pacienteChamado').innerText = paciente;
-                            document.getElementById('salaChamado').innerText = sala;
-                        }
-                    } else {
-                        alert("Erro ao registrar chamada!");
-                    }
-                })
-                .catch(error => console.error("Erro:", error));
-        }
-
-        // $('#senha').on('change', function () {
-        //     let senha = $(this).val();
-        //     $.ajax({
-        //         url: "<?= base_url('index.php/painel/chamar_senha'); ?>",
-        //         type: "POST",
-        //         data: { senha_id: senha },
-        //         dataType: "json",
-        //         success: function (response) {
-        //             if (response.status === "success") {
-        //                 alert("Senha " + response.senha + " chamada!");
-        //                 // Atualiza a interface do usuário
-        //                 document.getElementById('senhaChamada').innerText = response.senha;
-        //             } else {
-        //                 alert("Erro ao chamar senha!");
-        //             }
-        //         }
-        //     });
-        // });
-
-        function chamarSenha() {
-    let senha = document.getElementById('senha').value;
+    let senha = document.getElementById('senha'). value;
     let guiche = document.getElementById('guiche').value;
+    let paciente = document.getElementById('paciente').value;
+    let sala = document.getElementById('sala').value;   
 
-    if (!senha || !guiche) {
-        alert("Selecione uma senha e um guichê!");
+    if (tipo === "senha" && (!guiche || !senha)) {
+         alert("Selecione um guichê e uma senha!");
+            return;
+    }
+   
+    if (tipo === "paciente" && (!paciente || !sala)) {
+        alert("Selecione um paciente e uma sala!");
         return;
     }
 
@@ -228,9 +172,11 @@
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-            tipo: "senha",
+            tipo: tipo,
             senha: senha,
-            guiche: guiche
+            guiche: guiche,
+            paciente: paciente,
+            sala: sala
         })
     })
     .then(response => response.json())
@@ -244,7 +190,6 @@
     })
     .catch(error => console.error("Erro:", error));
 }
-
 
 
     </script>

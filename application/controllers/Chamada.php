@@ -21,16 +21,37 @@ class Chamada extends CI_Controller {
     }
     public function chamar() {
         header('Content-Type: application/json');
-        $tipo = $this->input->post('tipo');
-        $senha = $this->input->post('senha');
-        $guiche = $this->input->post('guiche');
+        $tipo = $_POST('tipo');
+        $senha = $_POST('senha');
+        $guiche = $_POST('guiche');
+        $paciente = $_POST['paciente'];
+        $sala = $_POST['sala'];
     
         if ($tipo === 'senha' && $senha && $guiche) {
-            $mensagem = "Senha: {$senha}, dirija-se ao guichê {$guiche}";
+            $mensagem = "Senha: {$senha}, dirija-se ao {$guiche}";
     
             // Salvar no banco de dados (crie uma tabela 'chamadas' se necessário)
             $this->db->insert('chamadas', [
                 'tipo' => 'senha',
+                'senha' => $senha,
+                'guiche' => $guiche,
+                'mensagem' => $mensagem,
+                'data_hora' => date('Y-m-d H:i:s')
+            ]);
+    
+            echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
+        } else {
+            echo json_encode(['status' => 'error', 'mensagem' => 'Dados inválidos!']);
+        }
+    
+        if ($tipo === 'paciente' && $paciente && $sala) {
+            $mensagem = "Paciente: {$paciente}, dirija-se ao {$sala}";
+    
+            // Salvar no banco de dados (crie uma tabela 'chamadas' se necessário)
+            $this->db->insert('chamadas', [
+                'tipo' => 'paciente',
+                'paciente' => $paciente,
+                'consultorio' => $sala,
                 'mensagem' => $mensagem,
                 'data_hora' => date('Y-m-d H:i:s')
             ]);
@@ -40,8 +61,6 @@ class Chamada extends CI_Controller {
             echo json_encode(['status' => 'error', 'mensagem' => 'Dados inválidos!']);
         }
     }
-    
-    
     
     public function salvar_chamada($tipo, $dados)
 {
@@ -80,7 +99,7 @@ class Chamada extends CI_Controller {
 
     if ($senha) {
         $response = [
-            'senha' => $senha->codigo, // Exemplo: CN-01
+            'senha' => $senha->codigo,
             'paciente' => $senha->nome_paciente,
             'medico' => $senha->medico,
             'consultorio' => $senha->consultorio,
