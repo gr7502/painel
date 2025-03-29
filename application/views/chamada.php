@@ -64,6 +64,18 @@
             <a href="<?= base_url('painel/index'); ?>" class="d-block ms-4"><i class="bi bi-dash-square-fill"></i>
                 Painel</a>
         </div>
+
+        <!-- Menu Configurações -->
+        <a href="#" data-bs-toggle="collapse" data-bs-target="#menuConfiguracoes"
+            class="collapse-menu d-block text-start px-3">
+            <i class="bi bi-card-heading"> </i> Painel <i class="fas fa-chevron-down float-end"></i>
+        </a>
+        <div class="collapse" id="menuConfiguracoes">
+            <a href="<?= base_url('chamada/index'); ?>" class="d-block ms-4"><i class="bi bi-layers-fill"></i> Chamar
+                senha</a>
+            <a href="<?= base_url('painel/index'); ?>" class="d-block ms-4"><i class="bi bi-dash-square-fill"></i>
+                Painel</a>
+        </div>
     </div>
 
     <div class="container">
@@ -153,43 +165,43 @@
     <script>
 
         function chamar(tipo) {
-    let senha = document.getElementById('senha'). value;
-    let guiche = document.getElementById('guiche').value;
-    let paciente = document.getElementById('paciente').value;
-    let sala = document.getElementById('sala').value;   
+            let senha = document.getElementById('senha').value;
+            let guiche = document.getElementById('guiche').value;
+            let paciente = document.getElementById('paciente').value;
+            let sala = document.getElementById('sala').value;
 
-    if (tipo === "senha" && (!guiche || !senha)) {
-         alert("Selecione um guichê e uma senha!");
-            return;
-    }
-   
-    if (tipo === "paciente" && (!paciente || !sala)) {
-        alert("Selecione um paciente e uma sala!");
-        return;
-    }
+            if (tipo === "senha" && (!guiche || !senha)) {
+                alert("Selecione um guichê e uma senha!");
+                return;
+            }
 
-    fetch("<?php echo base_url('chamada/chamar'); ?>", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-            tipo: tipo,
-            senha: senha,
-            guiche: guiche,
-            paciente: paciente,
-            sala: sala
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert("Chamada enviada para o painel!");
-            atualizarPainel();
-        } else {
-            alert("Erro ao chamar senha: " + data.mensagem);
+            if (tipo === "paciente" && (!paciente || !sala)) {
+                alert("Selecione um paciente e uma sala!");
+                return;
+            }
+
+            fetch("<?php echo base_url('chamada/chamar'); ?>", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    tipo: tipo,
+                    senha: senha,
+                    guiche: guiche,
+                    paciente: paciente,
+                    sala: sala
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Chamada enviada para o painel!");
+                        atualizarChamada();
+                    } else {
+                        alert("Erro ao chamar senha: " + data.mensagem);
+                    }
+                })
+                .catch(error => console.error("Erro:", error));
         }
-    })
-    .catch(error => console.error("Erro:", error));
-}
 
 
     </script>

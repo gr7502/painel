@@ -17,7 +17,7 @@ class Senhas_model extends CI_Model {
         $query = $this->db->get();
         
         $result = $query->row();
-        $next_number = ($result) ? $result->numero + 1 : 1; // Se não houver registros, começa do número 1
+        $next_number = ($result) ? $result->numero + 1 : 1;
 
         return $next_number;
     }
@@ -87,7 +87,7 @@ public function get_senha_atual() {
     }
     
     
-    public function get_historico_chamadas($limit = 5) {
+    public function get_historico_chamadas($limit = 4) {
         return $this->db->order_by('chamado_em', 'DESC')
                         ->get_where('senhas', ['status' => 'chamado'], $limit)
                         ->result_array();
@@ -107,9 +107,18 @@ public function get_senha_atual() {
         }
     }
 
-    
-    
-    
+    public function getUltimasChamadas()
+{
+    $this->db->order_by('data_hora', 'DESC');
+    $this->db->limit(5);
+    return $this->db->get('chamadas')->result_array();
 }
+}
+
+
+    
+    
+    
+
 
 

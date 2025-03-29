@@ -21,46 +21,59 @@ class Chamada extends CI_Controller {
     }
     public function chamar() {
         header('Content-Type: application/json');
-        $tipo = $_POST('tipo');
-        $senha = $_POST('senha');
-        $guiche = $_POST('guiche');
-        $paciente = $_POST['paciente'];
-        $sala = $_POST['sala'];
     
-        if ($tipo === 'senha' && $senha && $guiche) {
-            $mensagem = "Senha: {$senha}, dirija-se ao {$guiche}";
+        $tipo = $this->input->post('tipo');
+        $senha = $this->input->post('senha');
+        $guiche = $this->input->post('guiche');
+        $paciente = $this->input->post('paciente');
+        $sala = $this->input->post('sala');
     
-            // Salvar no banco de dados (crie uma tabela 'chamadas' se necessário)
-            $this->db->insert('chamadas', [
-                'tipo' => 'senha',
-                'senha' => $senha,
-                'guiche' => $guiche,
-                'mensagem' => $mensagem,
-                'data_hora' => date('Y-m-d H:i:s')
-            ]);
+        if ($tipo === 'senha') {
+            if ($senha && $guiche) {
+                $mensagem = "Senha: {$senha}, Dirija-se ao {$guiche}";
     
-            echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
-        } else {
-            echo json_encode(['status' => 'error', 'mensagem' => 'Dados inválidos!']);
+                // Inserir no banco de dados
+                $this->db->insert('chamadas', [
+                    'tipo' => 'senha',
+                    'senha' => $senha,
+                    'guiche' => $guiche,
+                    'mensagem' => $mensagem,
+                    'data_hora' => date('Y-m-d H:i:s')
+                ]);
+    
+                echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
+                return; // Encerra a execução para evitar múltiplas respostas
+            } else {
+                echo json_encode(['status' => 'error', 'mensagem' => 'Selecione um guichê e uma senha!']);
+                return;
+            }
         }
     
-        if ($tipo === 'paciente' && $paciente && $sala) {
-            $mensagem = "Paciente: {$paciente}, dirija-se ao {$sala}";
+        if ($tipo === 'paciente') {
+            if ($paciente && $sala) {
+                $mensagem = "Paciente: {$paciente}, Dirija-se ao {$sala}";
     
-            // Salvar no banco de dados (crie uma tabela 'chamadas' se necessário)
-            $this->db->insert('chamadas', [
-                'tipo' => 'paciente',
-                'paciente' => $paciente,
-                'consultorio' => $sala,
-                'mensagem' => $mensagem,
-                'data_hora' => date('Y-m-d H:i:s')
-            ]);
+                // Inserir no banco de dados
+                $this->db->insert('chamadas', [
+                    'tipo' => 'paciente',
+                    'paciente' => $paciente,
+                    'consultorio' => $sala,
+                    'mensagem' => $mensagem,
+                    'data_hora' => date('Y-m-d H:i:s')
+                ]);
     
-            echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
-        } else {
-            echo json_encode(['status' => 'error', 'mensagem' => 'Dados inválidos!']);
+                echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
+                return;
+            } else {
+                echo json_encode(['status' => 'error', 'mensagem' => 'Selecione um paciente e uma sala!']);
+                return;
+            }
         }
+    
+        // Se o tipo não for nem senha nem paciente, retorna erro
+        echo json_encode(['status' => 'error', 'mensagem' => 'Tipo de chamada inválido!']);
     }
+    
     
     public function salvar_chamada($tipo, $dados)
 {

@@ -6,14 +6,16 @@ class Painel extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('Senhas_model');
+        $this->load->model('Configuracoes_model');
         $this->load->library('session');
     }
 
     public function index() {
         
     $data['senha_atual'] = $this->Senhas_model->get_senha_atual();
-    $data['historico'] = $this->Senhas_model->get_historico_chamadas(5); // Últimos 5 chamados
-        $this->load->view('painel', $data);
+    $data['ultimasChamadas'] = $this->Senhas_model->getUltimasChamadas(); 
+    $data['midia_painel'] = $this->Configuracoes_model->get_midia_painel();
+        $this->load->view('painel_2', $data);
     }
 
     public function chamar_senha()
@@ -43,5 +45,13 @@ class Painel extends CI_Controller {
         }
         
     }
+
+    public function getUltimasChamadasJson(){
+    $ultimasChamadas = $this->Senhas_model->getUltimasChamadas();
+    $this->output
+         ->set_content_type('application/json')
+         ->set_output(json_encode($ultimasChamadas));
 }
+}
+
 

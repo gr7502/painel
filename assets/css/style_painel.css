@@ -2,6 +2,8 @@
 body {
   font-family: Arial, sans-serif;
   background-color: #f8f9fadc;
+  margin: 0;
+  padding: 0;
 }
 
 /* Cabeçalho */
@@ -19,16 +21,31 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-
 .info-consulta-header strong {
   font-size: 1.5em; /* Aumentado */
 }
 
-/* Vídeo */
+/* Layout principal */
+.container-fluid.flex-grow-1 {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+main.row {
+  display: flex;
+  flex: 1;
+  gap: 20px; /* Espaço entre o vídeo e a coluna de chamados */
+  padding: 20px;
+}
+
+.col-md-8 {
+  flex: 3; /* O vídeo ocupará 3 partes do espaço */
+}
+
 .video-container {
   background-color: #000;
-  justify-content: center !important;
-  width: 80%;
+  width: 100%;
   height: auto;
   border-radius: 12px;
   overflow: hidden;
@@ -41,15 +58,11 @@ body {
 /* Últimos chamados */
 aside {
   background-color: #fff;
-  width: 30% !important;
+  width: 35% !important;
   height: auto;
-  padding: 20px;
   border-radius: 14px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-aside div {
-  font-size:1em ;
+  padding: 20px;
 }
 
 aside h2 {
@@ -60,52 +73,53 @@ aside h2 {
   margin-bottom: 20px;
 }
 
-
-
+/* Estilos para as divs de chamada */
 .chamada {
-  background-color: #fff;
-  padding: 15px;
+  padding: 20px; /* Aumentei o padding para mais espaço interno */
   border-radius: 10px;
   margin-bottom: 15px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  min-height: 100px; /* Altura mínima para todas as divs */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centraliza o conteúdo verticalmente */
 }
 
 .chamada .senha,
 .chamada .paciente-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 10px; /* Aumentei o espaçamento entre os elementos */
 }
 
 .chamada .senha .fw-bold,
 .chamada .paciente-info .fw-bold {
-  font-size: 0.9em;
-  color: #666;
+  font-size: 1.2em; /* Aumentei o tamanho da fonte */
+  color: inherit; /* Herda a cor do elemento pai */
 }
 
 .chamada .senha .numero-senha,
 .chamada .paciente-info .nome {
-  font-size: 1.1em;
+  font-size: 1.4em; /* Aumentei o tamanho da fonte */
   font-weight: bold;
- 
+  color: inherit; /* Herda a cor do elemento pai */
 }
 
 .chamada .guiche,
 .chamada .destino {
-  font-size: 0.9em;
-  color: #333;
+  font-size: 1.2em; /* Aumentei o tamanho da fonte */
+  color: inherit; /* Herda a cor do elemento pai */
 }
 
 /* Estilo para a chamada em destaque */
 .chamada.destaque {
   background-color: #4c259f !important; /* Roxo */
-  
+  color: #fff;
 }
 
 .chamada.destaque .senha .fw-bold,
 .chamada.destaque .senha .numero-senha,
 .chamada.destaque .guiche {
-  background-color: #4c259f !important;
   color: #fff;
 }
 
@@ -129,4 +143,22 @@ aside h2 {
 .chm_primary {
   background-color: #fff !important;
   color: #000000 !important;
+}
+
+/* Classe para fundo branco e texto preto */
+.chamada-branca {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Classe para fundo #4c259f e texto branco */
+.chamada-roxa {
+  background-color: #4c259f;
+  color: #ffffff;
+}
+
+
+.chamada-roxa,
+.chamada-roxa * {
+  color: #ffffff !important;
 }

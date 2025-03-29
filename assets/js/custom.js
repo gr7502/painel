@@ -11,14 +11,3 @@ function atualizarPainel() {
         }
     });
 }
-
-// Função para falar a senha
-function falarSenha(senha) {
-    let synth = window.speechSynthesis;
-    let utterance = new SpeechSynthesisUtterance("Senha " + senha);
-    utterance.lang = "pt-BR";
-    synth.speak(utterance);
-}
-
-// Atualiza a tela a cada 5 segundos
-setInterval(atualizarPainel, 5000);
