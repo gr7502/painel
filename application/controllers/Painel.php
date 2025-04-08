@@ -6,6 +6,7 @@ class Painel extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('Senhas_model');
+        $this->load->model('Chamada_model');
         $this->load->model('Configuracoes_model');
         $this->load->library('session');
     }
@@ -13,7 +14,7 @@ class Painel extends CI_Controller {
     public function index() {
         
     $data['senha_atual'] = $this->Senhas_model->get_senha_atual();
-    $data['ultimasChamadas'] = $this->Senhas_model->getUltimasChamadas(); 
+    $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(6);
     $data['midia_painel'] = $this->Configuracoes_model->get_midia_painel();
         $this->load->view('painel_2', $data);
     }

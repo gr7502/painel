@@ -12,126 +12,146 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="<?php echo base_url('assets/css/Style_cham.css'); ?>">
+    <style>
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .col-panel {
+            margin-bottom: 20px;
+        }
+
+        .btn-chamar {
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-chamar:hover {
+            background-color: #5a4acd;
+        }
+
+        .btn-finalizar {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-finalizar:hover {
+            background-color: #218838;
+        }
+
+        #ultimaChamadaSenha,
+        #ultimaChamadaPaciente {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+
+        .senha-item {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .chamada-ativa {
+            background: #d4edda !important;
+            border: 2px solid #28a745;
+        }
+    </style>
 </head>
 
 <body>
-    <!--Sidebar-->
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo_container text-center mb-4">
             <img src="<?php echo base_url('assets/imagens/logo.png'); ?>" class="logo" alt="Logo">
         </div>
         <h3 class="ms-3 text-center">Painel</h3>
-
-        <!-- Botão Home -->
-        <a href="<?= base_url('welcome/index'); ?>" class="btn btn-home w-100 text-start px-3">
-            <i class="bi bi-house-door-fill me-2"></i> Home
-        </a>
-
-        <!-- Menu de Pacientes -->
-        <a href="#" data-bs-toggle="collapse" data-bs-target="#menuPacientes"
-            class="collapse-menu d-block text-start px-3">
-            <i class="bi bi-file-person-fill me-2"></i> Pacientes <i class="fas fa-chevron-down float-end"></i>
-        </a>
-        <div class="collapse" id="menuPacientes">
-            <a href="<?= base_url('paciente/index'); ?>" class="d-block ms-4"><i class="bi bi-person-circle me-2"></i>
-                Todos os pacientes</a>
-            <a href="<?= base_url('paciente/create_paciente'); ?>" class="d-block ms-4"><i
-                    class="bi bi-person-fill-add me-2"></i> Adicionar pacientes</a>
-        </div>
-
-        <!-- Menu Senhas -->
-        <a href="#" data-bs-toggle="collapse" data-bs-target="#menuSenhas"
-            class="collapse-menu d-block text-start px-3">
-            <i class="bi bi-file-binary-fill me-2"></i> Senhas <i class="fas fa-chevron-down float-end"></i>
-        </a>
-        <div class="collapse" id="menuSenhas">
-            <a href="<?= base_url('tiposSenhas/index'); ?>" class="d-block ms-4"><i
-                    class="bi bi-file-earmark-binary-fill me-2"></i> Tipos de senhas</a>
-            <a href="<?= base_url('tiposSenhas/criar'); ?>" class="d-block ms-4"><i
-                    class="bi bi-file-earmark-diff-fill me-2"></i> Adicionar senhas</a>
-            <a href="<?= base_url('senhas/gerar'); ?>" class="d-block ms-4"><i class="bi bi-key-fill me-2"></i> Gerar
-                Senhas</a>
-        </div>
-
-        <!-- Menu Painel -->
-        <a href="#" data-bs-toggle="collapse" data-bs-target="#menuPainel"
-            class="collapse-menu d-block text-start px-3">
-            <i class="bi bi-card-heading"> </i> Painel <i class="fas fa-chevron-down float-end"></i>
-        </a>
-        <div class="collapse" id="menuPainel">
-            <a href="<?= base_url('chamada/index'); ?>" class="d-block ms-4"><i class="bi bi-layers-fill"></i> Chamar
-                senha</a>
-            <a href="<?= base_url('painel/index'); ?>" class="d-block ms-4"><i class="bi bi-dash-square-fill"></i>
-                Painel</a>
-        </div>
-
-        <!-- Menu Configurações -->
-        <a href="#" data-bs-toggle="collapse" data-bs-target="#menuConfiguracoes"
-            class="collapse-menu d-block text-start px-3">
-            <i class="bi bi-card-heading"> </i> Painel <i class="fas fa-chevron-down float-end"></i>
-        </a>
-        <div class="collapse" id="menuConfiguracoes">
-            <a href="<?= base_url('chamada/index'); ?>" class="d-block ms-4"><i class="bi bi-layers-fill"></i> Chamar
-                senha</a>
-            <a href="<?= base_url('painel/index'); ?>" class="d-block ms-4"><i class="bi bi-dash-square-fill"></i>
-                Painel</a>
-        </div>
+        <!-- Menu de navegação -->
+        <!-- ... -->
     </div>
 
     <div class="container">
-        <h2>Chamada de Senhas e Pacientes</h2>
+        <h2 class="my-4">Chamada de Senhas e Pacientes</h2>
 
         <div class="row">
-            <!-- Painel de Chamada de Senhas -->
+            <!-- Painel de Chamada de Senhas Modificado -->
             <div class="col-md-6 col-panel">
                 <div class="panel">
                     <h3>Chamada de Senha e Guichê</h3>
-
-                    <form id="formChamadaSenhas">
+                    <div id="formChamadaSenhas">
                         <div class="mb-3">
                             <label for="guiche" class="form-label">Guichê:</label>
-                            <select id="guiche" name="guiche" class="form-select">
+                            <select id="guiche" name="guiche" class="form-select" required>
                                 <option value="">Selecione o Guichê...</option>
-                                <option value="Guichê 01">Guichê 01</option>
-                                <option value="Guichê 02">Guichê 02</option>
-                                <option value="Guichê 03">Guichê 03</option>
+                                <option value="Guiche 1">Guichê 1</option>
+                                <option value="Guiche 2">Guichê 2</option>
+                                <option value="Guiche 3">Guichê 3</option>
+                                <option value="Guiche 4">Guichê 4</option>
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="senha" class="form-label">Senha:</label>
-                            <select id="senha" name="senha" class="form-select">
-                                <option value="">Selecione a senha...</option>
-                                <option value="CN - 01">CN -01</option>
-                                <?php foreach ($senhas as $s): ?>
-                                    <option value="<?= htmlspecialchars($s->senha) ?>"><?= htmlspecialchars($s->senha) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <div class="d-grid gap-2">
+                            <button type="button" onclick="chamar('senha')" class="btn-chamar mb-2">
+                                <i class="bi bi-arrow-down-circle-fill me-2"></i>Próxima Senha
+                            </button>
                         </div>
 
-                        <button type="button" onclick="chamar('senha')">Chamar Senha</button>
-                        <div id="ultimaChamadaSenha">
+                        <div id="ultimaChamadaSenha" class="mt-3">
                             <h4>Última Chamada:</h4>
-                            <p id="senhaChamada">Aguardando...</p>
-                            <p id="guicheChamada"></p>
+                            <div class="chamada-atual">
+                                <p id="senhaChamada" class="fw-bold">Nenhuma senha em atendimento</p>
+                                <p id="guicheChamada"></p>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Painel de Chamada de Pacientes -->
+            <!-- Painel de Chamada de Pacientes (mantido igual) -->
             <div class="col-md-6 col-panel">
                 <div class="panel">
                     <h3>Chamada de Paciente e Consultório</h3>
-
                     <form id="formChamadaPaciente">
                         <div class="mb-3">
                             <label for="paciente" class="form-label">Paciente:</label>
-                            <select id="paciente" name="paciente" class="form-select">
+                            <select id="paciente" name="paciente" class="form-select" required>
                                 <option value="">Selecione o paciente...</option>
                                 <?php foreach ($pacientes as $p): ?>
-                                    <option value="<?= htmlspecialchars($p->nome) ?>"><?= htmlspecialchars($p->nome) ?>
+                                    <option value="<?= htmlspecialchars($p->nome) ?>" data-id="<?= $p->id ?>">
+                                        <?= htmlspecialchars($p->nome) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -139,71 +159,141 @@
 
                         <div class="mb-3">
                             <label for="sala" class="form-label">Consultório/Sala:</label>
-                            <select id="sala" name="sala" class="form-select">
+                            <select id="sala" name="sala" class="form-select" required>
                                 <option value="">Selecione a sala...</option>
-                                <option value="Consultório 01">Consultório 01</option>
-                                <option value="Consultório 02">Consultório 02</option>
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <option value="Consultório <?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>">Consultório
+                                        <?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>
+                                    </option>
+                                <?php endfor; ?>
                                 <option value="Sala de Exames">Sala de Exames</option>
+                                <option value="Sala de Emergência">Sala de Emergência</option>
                             </select>
                         </div>
 
-                        <button type="button" onclick="chamar('paciente')">Chamar Senha</button>
+                        <button type="button" onclick="chamar('paciente')" class="btn-chamar">
+                            <i class="bi bi-megaphone-fill me-2"></i>Chamar Paciente
+                        </button>
 
-
-                        <div id="ultimaChamadaPaciente">
+                        <div id="ultimaChamadaPaciente" class="mt-3">
                             <h4>Última Chamada:</h4>
-                            <p id="pacienteChamado">Aguardando...</p>
-                            <p id="salaChamado"></p>
+                            <div class="chamada-atual">
+                                <p id="pacienteChamado" class="fw-bold">Aguardando...</p>
+                                <p id="salaChamado"></p>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
+        <!-- Fila de Senhas Chamadas -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="panel">
+                    <h3>Fila de Atendimento</h3>
+                    <div id="filaSenhas">
+                        <!-- Senhas serão adicionadas aqui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        let chamadasAtivas = [];
 
-        function chamar(tipo) {
-            let senha = document.getElementById('senha').value;
-            let guiche = document.getElementById('guiche').value;
-            let paciente = document.getElementById('paciente').value;
-            let sala = document.getElementById('sala').value;
+    /**
+ * Função para enviar a chamada (para senha ou paciente)
+ * @param {string} tipo - Pode ser "senha" ou "paciente"
+ */
+function chamar(tipo) {
+    // Coleta os dados conforme o tipo
+    let dados = { tipo: tipo };
+    const BASE_URL = "<?php echo base_url(); ?>";
 
-            if (tipo === "senha" && (!guiche || !senha)) {
-                alert("Selecione um guichê e uma senha!");
-                return;
-            }
+    if (tipo === "senha") {
+        const guicheField = document.getElementById('guiche');
+        const guiche = guicheField ? guicheField.value.trim() : null;
+        if (!guiche) {
+            alert("Selecione um guichê!");
+            return;
+        }
+        dados.guiche = guiche;
+    } else if (tipo === "paciente") {
+        const pacienteField = document.getElementById('paciente');
+        const salaField = document.getElementById('sala');
+        const paciente = pacienteField ? pacienteField.value.trim() : null;
+        const sala = salaField ? salaField.value.trim() : null;
+        if (!paciente || !sala) {
+            alert("Selecione um paciente e uma sala!");
+            return;
+        }
+        dados.paciente = paciente;
+        dados.sala = sala;
+    }
 
-            if (tipo === "paciente" && (!paciente || !sala)) {
-                alert("Selecione um paciente e uma sala!");
-                return;
-            }
+    // Envia com headers corrigidos
+    fetch(BASE_URL + "chamada2/processar_chamada", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify(dados)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro na rede');
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === "success") {
+            // Atualizações da interface...
+        } else {
+            alert("Erro: " + (data.message || "Falha ao enviar"));
+        }
+    })
+    .catch(error => {
+        console.error("Erro:", error);
+        alert("Erro de comunicação com o servidor");
+    });
+}
 
-            fetch("<?php echo base_url('chamada/chamar'); ?>", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({
-                    tipo: tipo,
-                    senha: senha,
-                    guiche: guiche,
-                    paciente: paciente,
-                    sala: sala
+
+
+        /**
+         * Opcional: função para atualizar periodicamente as últimas chamadas na própria view "chamada"
+         */
+        function atualizarListas() {
+            fetch("<?php echo base_url('chamada2/ultimas_chamadas'); ?>")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na requisição');
+                    }
+                    return response.json();
                 })
-            })
-                .then(response => response.json())
                 .then(data => {
                     if (data.status === "success") {
-                        alert("Chamada enviada para o painel!");
-                        atualizarChamada();
-                    } else {
-                        alert("Erro ao chamar senha: " + data.mensagem);
+                        // Atualiza as últimas chamadas de senha
+                        if (data.ultima_senha) {
+                            document.getElementById('senhaChamada').textContent = data.ultima_senha.senha || 'N/A';
+                            document.getElementById('guicheChamada').textContent = data.ultima_senha.guiche || 'N/A';
+                        }
+                        // Atualiza as últimas chamadas de paciente
+                        if (data.ultima_paciente) {
+                            document.getElementById('pacienteChamado').textContent = data.ultima_paciente.paciente || 'N/A';
+                            document.getElementById('salaChamado').textContent = data.ultima_paciente.consultorio || 'N/A';
+                        }
                     }
                 })
-                .catch(error => console.error("Erro:", error));
+                .catch(error => {
+                    console.error("Erro ao atualizar listas:", error);
+                });
         }
 
-
+        // Atualiza as listas a cada 30 segundos
+        setInterval(atualizarListas, 30000);
+        document.addEventListener('DOMContentLoaded', atualizarListas);
     </script>
 </body>
 

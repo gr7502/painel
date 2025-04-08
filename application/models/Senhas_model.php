@@ -22,7 +22,7 @@ class Senhas_model extends CI_Model {
         return $next_number;
     }
 
-    // Função para inserir a senha gerada
+   
     public function insert_senha($tipo_senha_id, $numero, $senha) {
         $data = [
             'tipo_senha_id' => $tipo_senha_id,
@@ -44,7 +44,7 @@ class Senhas_model extends CI_Model {
     public function update_status_senha($senha, $status) {
         $this->db->where('senha', $senha)->update('senhas', ['status' => $status]);
     }
-    // Modelo Senhas_model.php
+   
 
 public function get_senha_atual() {
     // Exemplo de consulta para pegar a senha mais recente que esteja ativa
@@ -107,10 +107,9 @@ public function get_senha_atual() {
         }
     }
 
-    public function getUltimasChamadas()
-{
+    public function getUltimasChamadas(){
     $this->db->order_by('data_hora', 'DESC');
-    $this->db->limit(5);
+    $this->db->limit(4);
     return $this->db->get('chamadas')->result_array();
 }
 }

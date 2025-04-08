@@ -32,7 +32,7 @@ class Chamada extends CI_Controller {
             if ($senha && $guiche) {
                 $mensagem = "Senha: {$senha}, Dirija-se ao {$guiche}";
     
-                // Inserir no banco de dados
+               
                 $this->db->insert('chamadas', [
                     'tipo' => 'senha',
                     'senha' => $senha,
@@ -42,7 +42,7 @@ class Chamada extends CI_Controller {
                 ]);
     
                 echo json_encode(['status' => 'success', 'mensagem' => $mensagem]);
-                return; // Encerra a execução para evitar múltiplas respostas
+                return; 
             } else {
                 echo json_encode(['status' => 'error', 'mensagem' => 'Selecione um guichê e uma senha!']);
                 return;
@@ -166,6 +166,36 @@ public function chamar_senha()
     }
 }
 
+public function getProximaChamada() {
+    // Pega a próxima chamada pendente
+    $query = $this->db->query("
+        SELECT c.* 
+        FROM fila_chamadas f
+        JOIN chamadas c ON f.chamada_id = c.id
+        WHERE f.status = 'pendente'
+        ORDER BY f.data_entrada ASC
+        LIMIT 1
+    ");
+
+    $chamada = $query->row_array();
+
+    if ($chamada) {
+        // Marca como "falando" para evitar duplicação
+        $this->db->where('chamada_id', $chamada['id']);
+        $this->db->update('fila_chamadas', ['status' => 'falando']);
+    }
+
+    echo json_encode($chamada ? [
+        'status' => 'success',
+        'mensagem' => $chamada['mensagem'],
+        'chamada_id' => $chamada['id']
+    ] : [
+        'status' => 'empty'
+    ]);
+}
+
 
 
 }
+
+

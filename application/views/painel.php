@@ -23,7 +23,7 @@
     </div>
   </header>
 
-  <!-- Adicione este container onde você quer que a mídia apareça -->
+
 <div class="container-midia">
     <?php if(isset($midia_painel) && $midia_painel): ?>
         <?php if($midia_painel['tipo'] == 'imagem'): ?>
@@ -187,7 +187,7 @@
         atualizarChamadas();
         
         // Configura os intervalos regulares
-        setInterval(atualizarChamada, 5000); // Atualiza a chamada principal a cada 5s
+        setInterval(atualizarChamada, 5000); 
         setInterval(atualizarChamadas, 10000); // Atualiza a lista a cada 10s (reduzido para menos conflitos)
     });
 </script>

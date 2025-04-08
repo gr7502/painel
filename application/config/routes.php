@@ -52,3 +52,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+$route['chamada2/ultimas_chamadas'] = 'chamada2/ultimas_chamadas';
+$route['painel/ultimas_chamadas'] = 'painel/ultimas_chamadas';
+$route['chamada2/get_proxima_chamada'] = 'Chamada2/get_proxima_chamada'; 
