@@ -8,192 +8,345 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="<?php echo base_url('assets/css/style.css'); ?>">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="<?php echo base_url('assets/css/Style_cham.css'); ?>">
+
+    <?php
+    // Função para ajustar o brilho da cor
+    function adjustBrightness($hex, $steps, $opacity = 1) {
+        $hex = str_replace('#', '', $hex);
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        $r = max(0, min(255, $r + $steps));
+        $g = max(0, min(255, $g + $steps));
+        $b = max(0, min(255, $b + $steps));
+        
+        if ($opacity < 1) {
+            return "rgba($r, $g, $b, $opacity)";
+        }
+        return '#' . sprintf("%02x%02x%02x", $r, $g, $b);
+    }
+
+    // Definindo a cor primária a partir do banco de dados
+    $primary_color = isset($config->primary_color) ? $config->primary_color : '#6a11cb';
+    $secondary_color = adjustBrightness($primary_color, 30);
+    $accent_color = adjustBrightness($primary_color, 50);
+    $danger_color = '#ef4444';
+    $text_color = '#2d3748';
+    $light_bg = '#f8fafc';
+    ?>
+
     <style>
-        .panel {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        :root {
+            --primary-color: <?php echo $primary_color; ?>;
+            --secondary-color: <?php echo $secondary_color; ?>;
+            --accent-color: <?php echo $accent_color; ?>;
+            --danger-color: <?php echo $danger_color; ?>;
+            --text-color: <?php echo $text_color; ?>;
+            --light-bg: <?php echo $light_bg; ?>;
         }
 
-        .col-panel {
-            margin-bottom: 20px;
+        body {
+            background: var(--light-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .brand-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .btn-voltar {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .logo-container {
+            padding: 15px 0;
+        }
+
+        .logo {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            max-height: 90px;
+            width: auto;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+            transform: scale(1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: none;
+            overflow: hidden;
+        }
+
+        .panel:hover {
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .panel h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid <?php echo adjustBrightness($primary_color, 0, 0.1); ?>;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
         .btn-chamar {
-            background-color: #6a5acd;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-chamar:hover {
-            background-color: #5a4acd;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s;
+            width: 100%;
         }
 
         .btn-finalizar {
-            background-color: #28a745;
+            background: var(--danger-color);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.8rem 1.2rem;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
         }
 
         .btn-finalizar:hover {
-            background-color: #218838;
+            background: #dc2626;
+            transform: scale(1.02);
         }
 
-        #ultimaChamadaSenha,
-        #ultimaChamadaPaciente {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e9ecef;
-            border-radius: 5px;
+        .form-select {
+            border-radius: 10px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            font-size: 1.1rem;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px <?php echo adjustBrightness($primary_color, 0, 0.2); ?>;
+        }
+
+        .chamada-atual {
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary-color);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        #filaSenhas {
+            display: grid;
+            gap: 1rem;
         }
 
         .senha-item {
-            background: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            padding: 1.25rem;
+            transition: all 0.3s;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .senha-item.chamada-ativa {
+            background: <?php echo adjustBrightness($primary_color, 0, 0.05); ?>;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #cbd5e0;
+        }
+
+        .chamada-ativa .status-indicator {
+            background: var(--accent-color);
+            box-shadow: 0 0 10px <?php echo adjustBrightness($accent_color, 0, 0.4); ?>;
+        }
+
+        .text-xlarge {
+            font-size: 2rem;
+        }
+
+        .feedback-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.5s forwards;
         }
 
         @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .chamada-ativa {
-            background: #d4edda !important;
-            border: 2px solid #28a745;
+        @media (max-width: 768px) {
+            .logo {
+                max-height: 70px !important;
+            }
+            
+            .panel h3 {
+                font-size: 1.3rem;
+            }
+            
+            .btn-chamar {
+                font-size: 1rem;
+                padding: 0.8rem;
+            }
+            
+            .text-xlarge {
+                font-size: 1.7rem;
+            }
+            
+            .btn-voltar {
+                width: 35px;
+                height: 35px;
+                left: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo_container text-center mb-4">
-            <img src="<?php echo base_url('assets/imagens/logo.png'); ?>" class="logo" alt="Logo">
+    <!-- Header com Botão Voltar -->
+    <div class="brand-header">
+        <a href="http://localhost/Painel/" class="btn-voltar" title="Voltar ao Painel">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div class="container">
+            <div class="logo-container text-center">
+                <img src="<?php echo base_url('assets/imagens/logo.png'); ?>" class="logo img-fluid" alt="Logo">
+            </div>
         </div>
-        <h3 class="ms-3 text-center">Painel</h3>
-        <!-- Menu de navegação -->
-        <!-- ... -->
     </div>
 
-    <div class="container">
-        <h2 class="my-4">Chamada de Senhas e Pacientes</h2>
+    <div class="container py-4">
+        <h2 class="mb-5 text-center display-5 fw-bold" style="color: var(--primary-color)">CONTROLE DE ATENDIMENTO</h2>
 
-        <div class="row">
-            <!-- Painel de Chamada de Senhas Modificado -->
-            <div class="col-md-6 col-panel">
-                <div class="panel">
-                    <h3>Chamada de Senha e Guichê</h3>
-                    <div id="formChamadaSenhas">
-                        <div class="mb-3">
-                            <label for="guiche" class="form-label">Guichê:</label>
-                            <select id="guiche" name="guiche" class="form-select" required>
-                                <option value="">Selecione o Guichê...</option>
-                                <option value="Guiche 1">Guichê 1</option>
-                                <option value="Guiche 2">Guichê 2</option>
-                                <option value="Guiche 3">Guichê 3</option>
-                                <option value="Guiche 4">Guichê 4</option>
-                            </select>
-                        </div>
+        <div class="row g-4">
+            <!-- Painel Senhas -->
+            <div class="col-lg-6">
+                <div class="panel p-4">
+                    <h3><i class="bi bi-ticket-detailed me-2"></i>CHAMADA DE SENHAS</h3>
+                    <div class="mb-4">
+                        <label class="form-label fs-5 text-muted">GUICHÊ</label>
+                        <select id="guiche" class="form-select">
+                            <option>Selecione o Guichê...</option>
+                            <option>Guichê 01</option>
+                            <option>Guichê 02</option>
+                            <option>Guichê 03</option>
+                            <option>Guichê 04</option>
+                        </select>
+                    </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="button" onclick="chamar('senha')" class="btn-chamar mb-2">
-                                <i class="bi bi-arrow-down-circle-fill me-2"></i>Próxima Senha
-                            </button>
-                        </div>
+                    <button onclick="chamar('senha')" class="btn-chamar mb-4">
+                        <i class="bi bi-arrow-down-circle me-2"></i>CHAMAR PRÓXIMA SENHA
+                    </button>
 
-                        <div id="ultimaChamadaSenha" class="mt-3">
-                            <h4>Última Chamada:</h4>
-                            <div class="chamada-atual">
-                                <p id="senhaChamada" class="fw-bold">Nenhuma senha em atendimento</p>
-                                <p id="guicheChamada"></p>
+                    <div class="chamada-atual">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-2 fs-5">SENHA ATUAL</p>
+                                <h4 id="senhaChamada" class="fw-bold mb-0 text-xlarge">---</h4>
                             </div>
+                            <span class="badge bg-primary fs-5 py-2"> <span id="guicheChamada">--</span></span>
+                        </div>
+                        
+                        <!-- Botão para finalizar atendimento -->
+                        <button id="btnFinalizarSenha" class="btn-finalizar" onclick="finalizarAtendimento()" style="display: none;">
+                            <i class="bi bi-x-circle me-2"></i>FINALIZAR ATENDIMENTO
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Pacientes -->
+            <div class="col-lg-6">
+                <div class="panel p-4">
+                    <h3><i class="bi bi-person-heart me-2"></i>CHAMADA DE PACIENTES</h3>
+                    <div class="mb-4">
+                        <label class="form-label fs-5 text-muted">PACIENTE</label>
+                        <select id="paciente" class="form-select">
+                            <option>Selecione o paciente...</option>
+                            <?php foreach ($pacientes as $p): ?>
+                                <option value="<?= htmlspecialchars($p->nome) ?>">
+                                    <?= htmlspecialchars($p->nome) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fs-5 text-muted">CONSULTÓRIO</label>
+                        <select id="sala" class="form-select">
+                            <option>Selecione a sala...</option>
+                            <option value="Consultório 01">Consultório 01</option>
+                            <option value="Consultório 02">Consultório 02</option>
+                            <option value="Consultório 03">Consultório 03</option>
+                            <option value="Consultório 04">Consultório 04</option>
+                        </select>
+                    </div>
+
+                    <button onclick="chamar('paciente')" class="btn-chamar mb-4">
+                        <i class="bi bi-megaphone me-2"></i>CHAMAR PACIENTE
+                    </button>
+
+                    <div class="chamada-atual">
+                        <div>
+                            <p class="text-muted mb-2 fs-5">PACIENTE CHAMADO</p>
+                            <h4 id="pacienteChamado" class="fw-bold mb-2 text-xlarge">---</h4>
+                            <p class="text-muted fs-5" id="salaChamado">---</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Painel de Chamada de Pacientes (mantido igual) -->
-            <div class="col-md-6 col-panel">
-                <div class="panel">
-                    <h3>Chamada de Paciente e Consultório</h3>
-                    <form id="formChamadaPaciente">
-                        <div class="mb-3">
-                            <label for="paciente" class="form-label">Paciente:</label>
-                            <select id="paciente" name="paciente" class="form-select" required>
-                                <option value="">Selecione o paciente...</option>
-                                <?php foreach ($pacientes as $p): ?>
-                                    <option value="<?= htmlspecialchars($p->nome) ?>" data-id="<?= $p->id ?>">
-                                        <?= htmlspecialchars($p->nome) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="sala" class="form-label">Consultório/Sala:</label>
-                            <select id="sala" name="sala" class="form-select" required>
-                                <option value="">Selecione a sala...</option>
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <option value="Consultório <?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>">Consultório
-                                        <?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>
-                                    </option>
-                                <?php endfor; ?>
-                                <option value="Sala de Exames">Sala de Exames</option>
-                                <option value="Sala de Emergência">Sala de Emergência</option>
-                            </select>
-                        </div>
-
-                        <button type="button" onclick="chamar('paciente')" class="btn-chamar">
-                            <i class="bi bi-megaphone-fill me-2"></i>Chamar Paciente
-                        </button>
-
-                        <div id="ultimaChamadaPaciente" class="mt-3">
-                            <h4>Última Chamada:</h4>
-                            <div class="chamada-atual">
-                                <p id="pacienteChamado" class="fw-bold">Aguardando...</p>
-                                <p id="salaChamado"></p>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Fila de Senhas Chamadas -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="panel">
-                    <h3>Fila de Atendimento</h3>
-                    <div id="filaSenhas">
-                        <!-- Senhas serão adicionadas aqui dinamicamente -->
+            <!-- Fila de Atendimento -->
+            <div class="col-12">
+                <div class="panel p-4">
+                    <h3><i class="bi bi-list-task me-2"></i>FILA DE ATENDIMENTO</h3>
+                    <div id="filaSenhas" class="mt-3">
+                        <!-- Itens serão adicionados dinamicamente -->
                     </div>
                 </div>
             </div>
@@ -202,99 +355,237 @@
 
     <script>
         let chamadasAtivas = [];
+        let senhaAtualId = null;
 
-    /**
- * Função para enviar a chamada (para senha ou paciente)
- * @param {string} tipo - Pode ser "senha" ou "paciente"
- */
-function chamar(tipo) {
-    // Coleta os dados conforme o tipo
-    let dados = { tipo: tipo };
-    const BASE_URL = "<?php echo base_url(); ?>";
+        // Conecta ao servidor WebSocket
+        const ws = new WebSocket('ws://localhost:8080');
 
-    if (tipo === "senha") {
-        const guicheField = document.getElementById('guiche');
-        const guiche = guicheField ? guicheField.value.trim() : null;
-        if (!guiche) {
-            alert("Selecione um guichê!");
-            return;
-        }
-        dados.guiche = guiche;
-    } else if (tipo === "paciente") {
-        const pacienteField = document.getElementById('paciente');
-        const salaField = document.getElementById('sala');
-        const paciente = pacienteField ? pacienteField.value.trim() : null;
-        const sala = salaField ? salaField.value.trim() : null;
-        if (!paciente || !sala) {
-            alert("Selecione um paciente e uma sala!");
-            return;
-        }
-        dados.paciente = paciente;
-        dados.sala = sala;
-    }
+        ws.onopen = function () {
+            console.log('Conectado ao servidor WebSocket');
+        };
 
-    // Envia com headers corrigidos
-    fetch(BASE_URL + "chamada2/processar_chamada", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify(dados)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Erro na rede');
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === "success") {
-            // Atualizações da interface...
-        } else {
-            alert("Erro: " + (data.message || "Falha ao enviar"));
-        }
-    })
-    .catch(error => {
-        console.error("Erro:", error);
-        alert("Erro de comunicação com o servidor");
-    });
-}
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
 
+            if (data.type === 'new_call') {
+                const call = data.call;
+                chamadasAtivas.push(call);
+                atualizarInterface(call);
+            } else if (data.type === 'queue_update') {
+                chamadasAtivas = data.queue;
+                atualizarFila();
+            }
+        };
 
+        ws.onclose = function () {
+            console.log('Desconectado do servidor WebSocket');
+        };
 
-        /**
-         * Opcional: função para atualizar periodicamente as últimas chamadas na própria view "chamada"
-         */
-        function atualizarListas() {
-            fetch("<?php echo base_url('chamada2/ultimas_chamadas'); ?>")
+        ws.onerror = function (error) {
+            console.error('Erro no WebSocket:', error);
+        };
+
+        function chamar(tipo) {
+            let dados = { tipo: tipo };
+            const BASE_URL = "<?php echo base_url(); ?>";
+
+            if (tipo === "senha") {
+                const guicheField = document.getElementById('guiche');
+                const guiche = guicheField ? guicheField.value.trim() : null;
+                if (!guiche || guiche === "Selecione o Guichê...") {
+                    showFeedback('warning', 'Selecione um guichê!');
+                    return;
+                }
+                dados.guiche = guiche;
+
+                // Faz a requisição para obter a próxima senha
+                fetch(BASE_URL + "chamada2/processar_chamada", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=UTF-8",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(dados)
+                })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erro na requisição');
-                    }
+                    if (!response.ok) throw new Error('Erro na rede');
                     return response.json();
                 })
                 .then(data => {
                     if (data.status === "success") {
-                        // Atualiza as últimas chamadas de senha
-                        if (data.ultima_senha) {
-                            document.getElementById('senhaChamada').textContent = data.ultima_senha.senha || 'N/A';
-                            document.getElementById('guicheChamada').textContent = data.ultima_senha.guiche || 'N/A';
+                        const senha = data.dados.senha;
+                        const mensagem = `Senha ${senha}, dirija-se ao ${guiche}`;
+                        if (ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({
+                                type: 'new_call',
+                                number: senha,
+                                tipo: 'senha',
+                                guiche: guiche,
+                                mensagem: mensagem,
+                                fila_id: data.fila_id
+                            }));
                         }
-                        // Atualiza as últimas chamadas de paciente
-                        if (data.ultima_paciente) {
-                            document.getElementById('pacienteChamado').textContent = data.ultima_paciente.paciente || 'N/A';
-                            document.getElementById('salaChamado').textContent = data.ultima_paciente.consultorio || 'N/A';
-                        }
+                        showFeedback('success', 'Chamada realizada com sucesso!');
+                    } else {
+                        showFeedback('danger', 'Erro: ' + (data.message || "Falha ao enviar"));
                     }
                 })
                 .catch(error => {
-                    console.error("Erro ao atualizar listas:", error);
+                    console.error("Erro:", error);
+                    showFeedback('danger', 'Erro de comunicação com o servidor');
                 });
+            } else if (tipo === "paciente") {
+                const pacienteField = document.getElementById('paciente');
+                const salaField = document.getElementById('sala');
+                const paciente = pacienteField ? pacienteField.value.trim() : null;
+                const sala = salaField ? salaField.value.trim() : null;
+                if (!paciente || paciente === "Selecione o paciente..." || !sala || sala === "Selecione a sala...") {
+                    showFeedback('warning', 'Selecione um paciente e uma sala!');
+                    return;
+                }
+                dados.paciente = paciente;
+                dados.sala = sala;
+
+                fetch(BASE_URL + "chamada2/processar_chamada", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=UTF-8",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(dados)
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro na rede');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "success") {
+                        const mensagem = `Paciente ${paciente}, dirija-se ao ${sala}`;
+                        if (ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({
+                                type: 'new_call',
+                                number: paciente,
+                                tipo: 'paciente',
+                                sala: sala,
+                                mensagem: mensagem,
+                                fila_id: data.fila_id
+                            }));
+                        }
+                        showFeedback('success', 'Chamada realizada com sucesso!');
+                    } else {
+                        showFeedback('danger', 'Erro: ' + (data.message || "Falha ao enviar"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro:", error);
+                    showFeedback('danger', 'Erro de comunicação com o servidor');
+                });
+            }
         }
 
-        // Atualiza as listas a cada 30 segundos
-        setInterval(atualizarListas, 30000);
-        document.addEventListener('DOMContentLoaded', atualizarListas);
+        function finalizarAtendimento() {
+            if (!senhaAtualId) {
+                showFeedback('warning', 'Nenhuma senha em atendimento para finalizar!');
+                return;
+            }
+
+            if (!confirm("Deseja realmente finalizar este atendimento?\n\n")) {
+                return;
+            }
+
+            const BASE_URL = "<?php echo base_url(); ?>";
+            
+            fetch(BASE_URL + "chamada2/finalizar_atendimento", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ 
+                    id: senhaAtualId,
+                    status: 'finalizada',
+                    motivo: 'atendimento_concluido'
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erro na rede');
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            type: 'finalize_call',
+                            call_id: senhaAtualId
+                        }));
+                    }
+                    showFeedback('success', 'Atendimento finalizado com sucesso!');
+                    senhaAtualId = null;
+                    document.getElementById('btnFinalizarSenha').style.display = 'none';
+                } else {
+                    showFeedback('danger', 'Erro ao finalizar: ' + (data.message || "Falha ao atualizar"));
+                }
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                showFeedback('danger', 'Erro de comunicação com o servidor');
+            });
+        }
+
+        function showFeedback(type, message) {
+            const feedback = document.createElement('div');
+            feedback.className = `alert alert-${type} feedback-message`;
+            feedback.innerHTML = `
+                <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+                ${message}
+            `;
+            
+            document.querySelectorAll('.feedback-message').forEach(el => el.remove());
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => feedback.remove(), 5000);
+        }
+
+        function atualizarInterface(call) {
+            if (call.tipo === 'senha') {
+                document.getElementById('senhaChamada').textContent = call.number || '---';
+                document.getElementById('guicheChamada').textContent = call.guiche || '--';
+                senhaAtualId = call.id;
+                document.getElementById('btnFinalizarSenha').style.display = 'block';
+            } else if (call.tipo === 'paciente') {
+                document.getElementById('pacienteChamado').textContent = call.number || '---';
+                document.getElementById('salaChamado').textContent = call.sala || '---';
+            }
+            atualizarFila();
+        }
+
+        function atualizarFila() {
+            const filaSenhas = document.getElementById('filaSenhas');
+            filaSenhas.innerHTML = '';
+
+            chamadasAtivas.forEach(senha => {
+                const item = document.createElement('div');
+                item.className = `senha-item ${senha.id === senhaAtualId ? 'chamada-ativa' : ''}`;
+                item.innerHTML = `
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="status-indicator"></div>
+                        <div>
+                            <div class="fw-bold fs-5">${senha.tipo === 'senha' ? senha.number : senha.number}</div>
+                            <small class="text-muted">${senha.tipo === 'senha' ? 'Guichê ' + senha.guiche : 'Sala ' + senha.sala}</small>
+                        </div>
+                    </div>
+                    <small class="text-muted">${senha.timestamp}</small>
+                `;
+                filaSenhas.appendChild(item);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carrega a fila inicial via WebSocket
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'queue_update' }));
+            }
+        });
     </script>
 </body>
-
 </html>

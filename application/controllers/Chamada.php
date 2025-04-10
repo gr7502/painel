@@ -6,13 +6,16 @@ class Chamada extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('Senhas_model');
+        $this->load->model('Pacientes_model');
+        $this->load->model('Configuration_model');
         $this->load->library('session');
     }
 
     public function index() {
         $this->load->model('Pacientes_model');
         $this->load->model('Senhas_model');
-    
+
+        $data['config'] = $this->Configuration_model->get_config();
         $data['senhas'] = $this->Senhas_model->get_senhas_disponiveis();
         $data['pacientes'] = $this->Pacientes_model->get_all_pacientes();
         $ultimos_chamados = $this->Senhas_model->get_historico_chamadas();

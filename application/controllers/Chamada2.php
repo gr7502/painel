@@ -1,11 +1,15 @@
 <?php
 class Chamada2 extends CI_Controller
 {
+
+
     public function __construct()
     {
         parent::__construct();
         $this->load->model('chamada_model');
     }
+
+
 
     // Endpoint para obter a última chamada
     public function get_ultima_chamada()
@@ -60,6 +64,7 @@ class Chamada2 extends CI_Controller
         $this->output
              ->set_content_type('application/json')
              ->set_output(json_encode($response));
+            
     }
     
     
@@ -154,7 +159,8 @@ class Chamada2 extends CI_Controller
                     'paciente' => $data['paciente'],
                     'sala' => $data['sala'],
                     'data_entrada' => date('Y-m-d H:i:s'),
-                    'status' => 'pendente'
+                    'status' => 'pendente',
+                    'mensagem' => "Paciente {$data['paciente']}, Dirija-se ao {$data['sala']}"
                 ];
     
                 $result = $this->Chamada_model->registrar_chamada($dadosPaciente);
@@ -265,5 +271,45 @@ class Chamada2 extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($response));
     }
+
+    // No controller Chamada2.php
+public function finalizar_atendimento() {
+    $this->load->model('Chamada_model');
+    
+    $id = $this->input->post('id');
+    $status = $this->input->post('status');
+    $motivo = $this->input->post('motivo');
+
+    // Atualiza ambas as tabelas em uma transação
+    $this->db->trans_start();
+    
+    // 1. Atualiza a tabela fila_chamadas
+    $this->db->where('id', $id)
+             ->update('fila_chamadas', [
+                 'status' => $status,
+                 'data_finalizacao' => date('Y-m-d H:i:s'),
+             ]);
+    
+    // 2. Atualiza a tabela senhas (assumindo que há um campo de relacionamento)
+    $this->db->where('id_fila_chamada', $id)
+             ->update('senhas', [
+                 'status' => $status,
+                 'hora_finalizacao' => date('Y-m-d H:i:s')
+             ]);
+    
+    $this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Falha ao atualizar ambas as tabelas'
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Atendimento finalizado em ambas as tabelas'
+        ]);
+    }
+}
 
 }

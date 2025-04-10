@@ -74,24 +74,18 @@ class Chamada_model extends CI_Model {
         $query = $this->db->get('fila_chamadas');
         return $query->row_array();
     }
-    
-
-  
+   
     public function comecar_falar($id) {
-        return $this->db->where('id', $id)
-                       ->update('fila_chamadas', [
-                           'status' => 'falando',
-                           'data_inicio_fala' => date('Y-m-d H:i:s')
-                       ]);
+        $this->db->where('id', $id);
+        $this->db->update('fila_chamadas', ['status' => 'falando']);
     }
 
-    // Marca uma chamada como completada
     public function finalizar_fala($id) {
-        return $this->db->where('id', $id)
-                       ->update('fila_chamadas', [
-                           'status' => 'completa',
-                           'data_fim_fala' => date('Y-m-d H:i:s')
-                       ]);
+        $this->db->where('id', $id);
+        $this->db->update('fila_chamadas', [
+            'status' => 'finalizada',
+            'data_finalizacao' => date('Y-m-d H:i:s')
+        ]);
     }
 
     // Verifica se a chamada foi recentemente falada
@@ -125,7 +119,7 @@ class Chamada_model extends CI_Model {
     }
 
     public function get_ultimas_chamadas($limit = 6) {
-        $this->db->select('tipo, senha, paciente, guiche, consultorio, data_entrada');
+        $this->db->select('tipo, senha, paciente, guiche, sala, data_entrada');
         $this->db->where('DATE(data_entrada)', date('Y-m-d')); // Filtra por data atual
         $this->db->order_by('data_entrada', 'DESC');
         $this->db->limit($limit);
@@ -174,5 +168,19 @@ class Chamada_model extends CI_Model {
                         ->order_by('data_entrada', 'ASC')
                         ->get()
                         ->result();
+    }
+
+    public function registrar_chamada_paciente($paciente, $sala) {
+        $data = [
+            'paciente' => $paciente,
+            'consultorio' => $sala, // Alterado de 'sala' para 'consultorio'
+            'data_chamada' => date('Y-m-d H:i:s'),
+            'status' => 'em_atendimento',
+            'tipo' => 'paciente'
+        ];
+        
+        $this->db->insert('fila_chamadas', $data);
+        
+        return $this->db->insert_id();
     }
 }

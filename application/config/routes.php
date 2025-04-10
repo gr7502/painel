@@ -54,4 +54,5 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['chamada2/ultimas_chamadas'] = 'chamada2/ultimas_chamadas';
 $route['painel/ultimas_chamadas'] = 'painel/ultimas_chamadas';
-$route['chamada2/get_proxima_chamada'] = 'Chamada2/get_proxima_chamada'; 
+$route['chamada2/get_proxima_chamada'] = 'chamada2/get_proxima_chamada'; 
+$route['chamada2/marcar_como_falada/(:num)'] = 'Chamada2/marcar_como_falada/$1';

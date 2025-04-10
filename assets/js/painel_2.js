@@ -4,24 +4,6 @@ const intervaloVerificacao = 10000;
 /**
  * Verifica a fila de chamadas e busca a próxima chamada
  */
-function verificarFila() {
-    if (filaAtiva) return;
-    filaAtiva = true;
-
-    fetch(`${API_BASE_URL}/get_proxima_chamada`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success") {
-                exibirEfalarChamada(data);
-            } else {
-                filaAtiva = false;
-            }
-        })
-        .catch(error => {
-            console.error("Erro:", error);
-            filaAtiva = false;
-        });
-}
 
 /**
  * Atualiza a exibição no painel com a mensagem recebida e a reproduz via síntese de voz

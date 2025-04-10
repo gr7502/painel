@@ -1,17 +1,35 @@
+<?php
+// Definindo a função adjustBrightness
+function adjustBrightness($hex, $steps, $opacity = 1) {
+    $hex = str_replace('#', '', $hex);
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $r = max(0, min(255, $r + $steps));
+    $g = max(0, min(255, $g + $steps));
+    $b = max(0, min(255, $b + $steps));
+    if ($opacity < 1) {
+        return "rgba($r, $g, $b, $opacity)";
+    }
+    return '#' . sprintf("%02x%02x%02x", $r, $g, $b);
+}
+
+// Definindo a cor primária
+$primary_color = isset($config->primary_color) ? $config->primary_color : '#4f008f';
+$primary_color_hover = adjustBrightness($primary_color, -20);
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerar Senha</title>
-    
-    <!-- Google Fonts -->
+    <title>Gerar Senha - Subtipos de <?php echo $tipo->nome; ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --cor-primaria: <?php echo isset($config->primary_color) ? $config->primary_color : '#6a5acd'; ?>;
-            --cor-primaria-hover: <?php echo isset($config->primary_color) ? adjustBrightness($config->primary_color, -20) : '#5a4ab5'; ?>;
+            --cor-primaria: <?php echo $primary_color; ?>;
+            --cor-primaria-hover: <?php echo $primary_color_hover; ?>;
         }
 
         * {
@@ -79,7 +97,7 @@
             font-weight: 600;
         }
 
-        /* Botões de Tipos de Senha */
+        /* Botões de Subtipos */
         .row {
             display: flex;
             flex-wrap: wrap;
@@ -103,9 +121,6 @@
             font-weight: 500;
             transition: background-color 0.3s ease, transform 0.3s ease;
             cursor: pointer;
-            text-decoration: none; /* Remove o sublinhado dos links */
-            display: inline-block; /* Faz o link ocupar o espaço como um botão */
-            text-align: center; /* Centraliza o texto dentro do link */
         }
 
         .btn-senha:hover {
@@ -153,45 +168,35 @@
         </a>
     </div>
 
-    <!-- Caixa de Conteúdo -->
+    <!-- Container Principal -->
     <div class="container">
         <div class="container-box">
-            <h2>Gerar Senha</h2>
-
-            <!-- Botões para os Tipos de Senha -->
+            <h2>Escolha um Subtipo para <?php echo $tipo->nome; ?></h2>
             <div class="row mt-4">
-                <?php foreach ($tipos as $tipo): ?>
+                <?php foreach ($subtipos as $subtipo): ?>
                     <div class="col-md-6 mb-3">
-                        <?php if ($tipo->has_subtipos): ?>
-                            <!-- Tipo com subtipos: redireciona para página de subtipos -->
-                            <a href="<?php echo site_url('senhas/subtipos/' . $tipo->id); ?>" class="btn-senha">
-                                <?php echo $tipo->nome; ?>
-                            </a>
-                        <?php else: ?>
-                            <!-- Tipo sem subtipos: gera senha diretamente -->
-                            <button class="btn-senha gerar-senha" 
-                                    data-id="<?php echo $tipo->id; ?>" 
-                                    data-nome="<?php echo $tipo->nome; ?>" 
-                                    data-prefixo="<?php echo $tipo->prefixo; ?>">
-                                <?php echo $tipo->nome; ?>
-                            </button>
-                        <?php endif; ?>
+                        <button class="btn-senha gerar-senha-subtipo" 
+                                data-id="<?php echo $subtipo->id; ?>" 
+                                data-tipo-nome="<?php echo $tipo->nome; ?>" 
+                                data-subtipo-nome="<?php echo $subtipo->nome; ?>">
+                            <?php echo $subtipo->nome; ?>
+                        </button>
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            $(".gerar-senha").click(function () {
-                var tipo_id = $(this).data("id");
-                var tipo_nome = $(this).data("nome");
+            $(".gerar-senha-subtipo").click(function () {
+                var subtipo_id = $(this).data("id");
+                var tipo_nome = $(this).data("tipo-nome");
+                var subtipo_nome = $(this).data("subtipo-nome");
 
                 $.ajax({
-                    url: "<?php echo base_url('senhas/gerar_senha'); ?>/" + tipo_id,
+                    url: "<?php echo base_url('senhas/gerar_senha_subtipo'); ?>/" + subtipo_id,
                     type: "GET",
                     dataType: "json",
                     success: function (response) {
@@ -199,47 +204,31 @@
                             alert("Erro: " + response.error);
                         } else {
                             var senhaGerada = response.success;
-                            // Imprime a senha diretamente
-                            imprimirSenha(senhaGerada, tipo_nome);
+                            // Imprime a senha usando apenas o nome do subtipo
+                            imprimirSenha(senhaGerada, subtipo_nome);
                         }
                     },
-                    error: function (xhr, status, error) {
-                        console.error("Erro na requisição AJAX:", xhr.responseText);
-                        alert("Erro ao gerar senha. Verifique o console.");
+                    error: function () {
+                        alert("Erro ao gerar senha.");
                     }
                 });
             });
 
-            // Função para imprimir a senha
-            function imprimirSenha(senha, tipo) {
+            function imprimirSenha(senha, descricao) {
                 var printWindow = window.open('', '', 'width=400,height=300');
                 printWindow.document.write('<html><head><title>Senha</title></head><body>');
-                printWindow.document.write('<h2 style="text-align:center;">' + tipo + '</h2>');
+                printWindow.document.write('<h2 style="text-align:center;">' + descricao + '</h2>');
                 printWindow.document.write('<h1 style="text-align:center; font-size:50px; color:red;">' + senha + '</h1>');
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
                 printWindow.print();
+
+                // Redireciona para a view senhas/gerar após 5 segundos
+                setTimeout(function() {
+                    window.location.href = "<?php echo base_url('senhas/gerar'); ?>";
+                }, 2000); // 5000 milissegundos = 5 segundos
             }
         });
     </script>
 </body>
 </html>
-
-<?php
-// Função para ajustar o brilho da cor primária (usada para o hover)
-function adjustBrightness($hex, $steps, $opacity = 1) {
-    $hex = str_replace('#', '', $hex);
-    $r = hexdec(substr($hex, 0, 2));
-    $g = hexdec(substr($hex, 2, 2));
-    $b = hexdec(substr($hex, 4, 2));
-    
-    $r = max(0, min(255, $r + $steps));
-    $g = max(0, min(255, $g + $steps));
-    $b = max(0, min(255, $b + $steps));
-    
-    if ($opacity < 1) {
-        return "rgba($r, $g, $b, $opacity)";
-    }
-    return '#' . sprintf("%02x%02x%02x", $r, $g, $b);
-}
-?>

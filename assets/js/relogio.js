@@ -1,23 +1,28 @@
-// Função para atualizar o relógio na tela
 function atualizarRelogio() {
-    const agora = new Date();
-
-    // Formata a data
-    const opcoesData = {
+  const relogioElement = document.getElementById('relogio');
+  const agora = new Date();
+  
+  // Formata a data e hora (ex.: "quarta-feira, 09 de abril de 2025 14:30:00")
+  const options = {
       weekday: 'long',
-      day: '2-digit',
+      year: 'numeric',
       month: 'long',
-      year: 'numeric'
-    };
-    const dataFormatada = agora.toLocaleDateString('pt-BR', opcoesData);
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+  };
+  let textoRelogio = agora.toLocaleString('pt-BR', options);
+  
+  // Capitaliza a primeira letra do texto
+  textoRelogio = textoRelogio.charAt(0).toUpperCase() + textoRelogio.slice(1);
+  
+  // Atualiza o elemento do relógio
+  relogioElement.textContent = textoRelogio;
+}
 
-    // Formata a hora
-    const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+// Atualiza o relógio a cada segundo
+setInterval(atualizarRelogio, 1000);
 
-    // Atualiza o elemento do relógio
-    document.getElementById('relogio').innerHTML = `${dataFormatada} - ${horaFormatada}`;
-  }
-
-  // Atualiza o relógio a cada segundo
-  setInterval(atualizarRelogio, 1000);
-  atualizarRelogio();
+// Executa imediatamente ao carregar
+atualizarRelogio();

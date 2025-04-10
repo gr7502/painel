@@ -5,10 +5,12 @@ class Paciente extends CI_Controller {
 public function __construct() {
     parent::__construct();
     $this->load->model('Pacientes_model');
+    $this->load->model('Configuration_model');
     $this->load->library('form_validation');
 }
 public function index() {
     $data['pacientes'] = $this->Pacientes_model->get_all_pacientes();
+    $data['config'] = $this->Configuration_model->get_config();
     $this->load->view('pacientes', $data);
 }
 public function home(){
