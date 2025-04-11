@@ -32,7 +32,7 @@
       width: 100%;
       height: 100%;
       background: white;
-      position: relative;
+      position: relative; /* Para posicionar elementos absolutos dentro */
     }
 
     .chamada {
@@ -53,6 +53,7 @@
       font-size: 4vw;
     }
 
+    /* Animação de piscar */
     @keyframes piscar {
         0% { opacity: 1; }
         50% { opacity: 0.5; }
@@ -60,12 +61,12 @@
     }
 
     .chamada.piscando {
-        animation: piscar 0.5s ease-in-out 3;
+        animation: piscar 0.5s ease-in-out 3; /* Pisca 3 vezes, 0.5s por ciclo */
     }
 
     .logo-container {
       position: absolute;
-      bottom: 10px;
+      bottom: 10px; /* Movido para a parte inferior */
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
@@ -81,7 +82,7 @@
       position: absolute;
       top: 10px;
       left: 10px;
-      max-width: 150px;
+      max-width: 150px; 
       height: auto;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -159,12 +160,11 @@
     <div class="chamada">
       <div id="mensagemSenha">
         <span>Última chamada:</span> <br>
-        <strong id="senhaChamada">Aguardando...</strong>
+        <strong id="senhaChamada">Carregando...</strong>
       </div>
     </div>
 
-    <div id="ultimos-chamados" class="ultimos-chamados">
-      <h2 class="titulo">Últimos Chamados</h2>
+    <div id="ultimos-chamados">
       <?php if (!empty($ultimasChamadas)): ?>
         <?php foreach ($ultimasChamadas as $chamada): ?>
           <div class="chamado-card">
@@ -193,41 +193,27 @@
 
   <script src="<?php echo base_url('assets/js/relogio.js'); ?>"></script>
   <script>
-    // Conecta ao servidor WebSocket
-    const ws = new WebSocket('ws://localhost:8080');
+    let filaAtiva = false;
+    const intervaloVerificacao = 10000;
 
-    ws.onopen = function () {
-        console.log('Conectado ao servidor WebSocket');
-    };
+    async function verificarFila() {
+        if (filaAtiva) return;
+        filaAtiva = true;
 
-    ws.onmessage = async function (event) {
-        const data = JSON.parse(event.data);
+        try {
+            const response = await fetch("<?= site_url('chamada2/get_proxima_chamada') ?>");
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
 
-        if (data.type === 'new_call') {
-            const call = data.call;
-            await exibirEfalarChamada({
-                mensagem: call.mensagem,
-                tipo: call.tipo,
-                dados: {
-                    senha: call.tipo === 'senha' ? call.number : null,
-                    paciente: call.tipo === 'paciente' ? call.number : null,
-                    guiche: call.guiche,
-                    sala: call.sala
-                },
-                fila_id: call.fila_id
-            });
-        } else if (data.type === 'queue_update') {
-            atualizarListaChamados(data.queue);
+            if (data.status === "success") {
+                await exibirEfalarChamada(data);
+            }
+        } catch (error) {
+            console.error("Erro na verificação da fila:", error);
+        } finally {
+            filaAtiva = false;
         }
-    };
-
-    ws.onclose = function () {
-        console.log('Desconectado do servidor WebSocket');
-    };
-
-    ws.onerror = function (error) {
-        console.error('Erro no WebSocket:', error);
-    };
+    }
 
     async function exibirEfalarChamada(data) {
         // Atualiza o texto da última chamada na interface
@@ -240,9 +226,7 @@
             // Fala a mensagem após o som
             await falarTexto(data.mensagem);
             // Marca a chamada como falada
-            if (data.fila_id) {
-                await marcarComoFalada(data.fila_id);
-            }
+            await marcarComoFalada(data.fila_id);
         } catch (error) {
             console.error("Erro no fluxo de chamada:", error);
         }
@@ -254,7 +238,7 @@
 
         // Remove a mensagem "sem chamadas" se ela existir
         if (semChamadas) {
-            semChamadas.remove();
+            semChamadas.remove(); // Remove completamente o elemento
         }
 
         // Adiciona o novo chamado à lista
@@ -272,34 +256,6 @@
         container.insertBefore(novoChamado, container.firstChild);
     }
 
-    function atualizarListaChamados(queue) {
-        const container = document.getElementById('ultimos-chamados');
-        container.innerHTML = '<h2 class="titulo">Últimos Chamados</h2>';
-
-        if (queue.length === 0) {
-            const semChamadas = document.createElement('div');
-            semChamadas.id = 'sem-chamadas';
-            semChamadas.className = 'sem-chamadas';
-            semChamadas.innerHTML = '<p class="fw-bold">Nenhuma chamada recente.</p>';
-            container.appendChild(semChamadas);
-        } else {
-            queue.forEach(call => {
-                const chamado = document.createElement('div');
-                chamado.className = 'chamado-card';
-                chamado.innerHTML = `
-                    <div class="info">
-                        <span class="fw-bold">${call.tipo.toUpperCase()}</span>
-                        <span class="numero">${call.tipo === 'senha' ? call.number : call.number}</span>
-                    </div>
-                    <div class="destino">
-                        <span>${call.guiche || call.sala}</span>
-                    </div>
-                `;
-                container.appendChild(chamado);
-            });
-        }
-    }
-
     async function marcarComoFalada(filaId) {
         try {
             await fetch(`<?= site_url('chamada2/marcar_como_falada/') ?>${filaId}`);
@@ -311,15 +267,18 @@
     function tocarSomAlerta() {
         return new Promise((resolve) => {
             const audio = new Audio("<?= base_url('assets/sounds/alert.mp3') ?>");
-            audio.volume = 0.8;
+            audio.volume = 0.8; // Ajusta o volume (opcional, entre 0.0 e 1.0)
 
+            // Seleciona a seção .chamada
             const chamadaElement = document.querySelector('.chamada');
+
+            // Adiciona a classe piscando para iniciar a animação
             chamadaElement.classList.add('piscando');
 
-            audio.onended = resolve;
+            audio.onended = resolve; // Resolve a Promise quando o áudio terminar
             audio.onerror = (err) => {
                 console.error("Erro ao tocar o som de alerta:", err);
-                resolve();
+                resolve(); // Resolve mesmo se houver erro, para não travar o fluxo
             };
             audio.play();
         });
@@ -346,6 +305,12 @@
             window.speechSynthesis.speak(utterance);
         });
     }
+
+    // Inicia o sistema ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        setInterval(verificarFila, intervaloVerificacao);
+        verificarFila();
+    });
   </script>
 </body>
 </html>

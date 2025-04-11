@@ -1,83 +1,30 @@
 <?php
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
-
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-class CallManager implements MessageComponentInterface {
+class CallServer implements MessageComponentInterface {
     protected $clients;
-    protected $callQueue;
+    protected $ci;
 
     public function __construct() {
         $this->clients = new \SplObjectStorage;
-        $this->callQueue = [];
-        echo "Servidor WebSocket iniciado!\n";
+        // Carrega o CodeIgniter para acessar o banco de dados
+        $this->ci = &get_instance();
+        $this->ci->load->database();
+        
     }
 
     public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
         echo "Nova conexão! ({$conn->resourceId})\n";
 
-        $conn->send(json_encode([
-            'type' => 'queue_update',
-            'queue' => $this->callQueue
-        ]));
+        // Envia todas as chamadas pendentes ao cliente recém-conectado
+        $this->sendPendingCalls($conn);
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
-        $data = json_decode($msg, true);
-
-        if (isset($data['type'])) {
-            if ($data['type'] === 'new_call') {
-                $call = [
-                    'id' => uniqid(),
-                    'number' => $data['number'],
-                    'tipo' => $data['tipo'] ?? 'senha',
-                    'guiche' => $data['guiche'] ?? null,
-                    'sala' => $data['sala'] ?? null,
-                    'mensagem' => $data['mensagem'] ?? "Senha {$data['number']}",
-                    'timestamp' => date('Y-m-d H:i:s'),
-                    'fila_id' => $data['fila_id'] ?? null,
-                    'status' => $data['status'] ?? 'pendente'
-                ];
-                $this->callQueue[] = $call;
-
-                $this->broadcast([
-                    'type' => 'new_call',
-                    'call' => $call
-                ]);
-            } elseif ($data['type'] === 'remove_call') {
-                $this->callQueue = array_filter($this->callQueue, function ($call) use ($data) {
-                    return $call['id'] !== $data['call_id'];
-                });
-                $this->callQueue = array_values($this->callQueue);
-
-                $this->broadcast([
-                    'type' => 'queue_update',
-                    'queue' => $this->callQueue
-                ]);
-            } elseif ($data['type'] === 'finalize_call') {
-                $this->callQueue = array_map(function ($call) use ($data) {
-                    if ($call['id'] === $data['call_id']) {
-                        $call['status'] = 'finalizada';
-                    }
-                    return $call;
-                }, $this->callQueue);
-
-                $this->callQueue = array_filter($this->callQueue, function ($call) {
-                    return $call['status'] !== 'finalizada';
-                });
-                $this->callQueue = array_values($this->callQueue);
-
-                $this->broadcast([
-                    'type' => 'queue_update',
-                    'queue' => $this->callQueue
-                ]);
-            }
-        }
+        // Pode ser usado para receber mensagens do cliente, se necessário
     }
 
     public function onClose(ConnectionInterface $conn) {
@@ -90,18 +37,69 @@ class CallManager implements MessageComponentInterface {
         $conn->close();
     }
 
-    protected function broadcast($message) {
-        $message = json_encode($message);
+    // Função para buscar e enviar chamadas pendentes
+    public function sendPendingCalls($conn = null) {
+        $query = $this->ci->db->where('status', 'pendente')
+                              ->where('falada', FALSE)
+                              ->order_by('data_entrada', 'ASC')
+                              ->get('fila_chamadas')
+                              ->result_array();
+
+        $calls = [];
+        foreach ($query as $call) {
+            $calls[] = [
+                'fila_id' => $call['id'],
+                'tipo' => $call['tipo'],
+                'number' => $call['tipo'] === 'senha' ? $call['senha'] : $call['paciente'],
+                'guiche' => $call['guiche'],
+                'sala' => $call['consultorio'],
+                'mensagem' => $call['mensagem'],
+                'data_entrada' => $call['data_entrada']
+            ];
+        }
+
+        $message = json_encode([
+            'type' => 'pending_calls',
+            'calls' => $calls
+        ]);
+
+        if ($conn) {
+            // Envia apenas para o cliente recém-conectado
+            $conn->send($message);
+        } else {
+            // Envia para todos os clientes conectados
+            foreach ($this->clients as $client) {
+                $client->send($message);
+            }
+        }
+    }
+
+    // Função para notificar sobre uma nova chamada
+    public function notifyNewCall($call) {
+        $message = json_encode([
+            'type' => 'new_call',
+            'call' => [
+                'fila_id' => $call['id'],
+                'tipo' => $call['tipo'],
+                'number' => $call['tipo'] === 'senha' ? $call['senha'] : $call['paciente'],
+                'guiche' => $call['guiche'],
+                'sala' => $call['consultorio'],
+                'mensagem' => $call['mensagem'],
+                'data_entrada' => $call['data_entrada']
+            ]
+        ]);
+
         foreach ($this->clients as $client) {
             $client->send($message);
         }
     }
 }
 
-$server = IoServer::factory(
-    new HttpServer(
-        new WsServer(
-            new CallManager()
+// Inicia o servidor WebSocket
+$server = \Ratchet\Server\IoServer::factory(
+    new \Ratchet\Http\HttpServer(
+        new \Ratchet\WebSocket\WsServer(
+            new CallServer()
         )
     ),
     8080

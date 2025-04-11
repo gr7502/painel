@@ -28,12 +28,12 @@
     }
 
     // Definindo a cor primária a partir do banco de dados
-    $primary_color = isset($config->primary_color) ? $config->primary_color : '#6a11cb';
-    $secondary_color = adjustBrightness($primary_color, 30);
-    $accent_color = adjustBrightness($primary_color, 50);
-    $danger_color = '#ef4444';
-    $text_color = '#2d3748';
-    $light_bg = '#f8fafc';
+    $primary_color = isset($config->primary_color) ? $config->primary_color : '#6a11cb'; // Cor padrão caso não exista
+    $secondary_color = adjustBrightness($primary_color, 30); // Cor secundária mais clara
+    $accent_color = adjustBrightness($primary_color, 50); // Cor de destaque mais clara
+    $danger_color = '#ef4444'; // Cor de perigo fixa
+    $text_color = '#2d3748'; // Cor de texto fixa
+    $light_bg = '#f8fafc'; // Fundo claro fixo
     ?>
 
     <style>
@@ -357,34 +357,6 @@
         let chamadasAtivas = [];
         let senhaAtualId = null;
 
-        // Conecta ao servidor WebSocket
-        const ws = new WebSocket('ws://localhost:8080');
-
-        ws.onopen = function () {
-            console.log('Conectado ao servidor WebSocket');
-        };
-
-        ws.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-
-            if (data.type === 'new_call') {
-                const call = data.call;
-                chamadasAtivas.push(call);
-                atualizarInterface(call);
-            } else if (data.type === 'queue_update') {
-                chamadasAtivas = data.queue;
-                atualizarFila();
-            }
-        };
-
-        ws.onclose = function () {
-            console.log('Desconectado do servidor WebSocket');
-        };
-
-        ws.onerror = function (error) {
-            console.error('Erro no WebSocket:', error);
-        };
-
         function chamar(tipo) {
             let dados = { tipo: tipo };
             const BASE_URL = "<?php echo base_url(); ?>";
@@ -392,95 +364,48 @@
             if (tipo === "senha") {
                 const guicheField = document.getElementById('guiche');
                 const guiche = guicheField ? guicheField.value.trim() : null;
-                if (!guiche || guiche === "Selecione o Guichê...") {
-                    showFeedback('warning', 'Selecione um guichê!');
+                if (!guiche) {
+                    alert("Selecione um guichê!");
                     return;
                 }
                 dados.guiche = guiche;
-
-                // Faz a requisição para obter a próxima senha
-                fetch(BASE_URL + "chamada2/processar_chamada", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify(dados)
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Erro na rede');
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === "success") {
-                        const senha = data.dados.senha;
-                        const mensagem = `Senha ${senha}, dirija-se ao ${guiche}`;
-                        if (ws.readyState === WebSocket.OPEN) {
-                            ws.send(JSON.stringify({
-                                type: 'new_call',
-                                number: senha,
-                                tipo: 'senha',
-                                guiche: guiche,
-                                mensagem: mensagem,
-                                fila_id: data.fila_id
-                            }));
-                        }
-                        showFeedback('success', 'Chamada realizada com sucesso!');
-                    } else {
-                        showFeedback('danger', 'Erro: ' + (data.message || "Falha ao enviar"));
-                    }
-                })
-                .catch(error => {
-                    console.error("Erro:", error);
-                    showFeedback('danger', 'Erro de comunicação com o servidor');
-                });
             } else if (tipo === "paciente") {
                 const pacienteField = document.getElementById('paciente');
                 const salaField = document.getElementById('sala');
                 const paciente = pacienteField ? pacienteField.value.trim() : null;
                 const sala = salaField ? salaField.value.trim() : null;
-                if (!paciente || paciente === "Selecione o paciente..." || !sala || sala === "Selecione a sala...") {
-                    showFeedback('warning', 'Selecione um paciente e uma sala!');
+                if (!paciente || !sala) {
+                    alert("Selecione um paciente e uma sala!");
                     return;
                 }
                 dados.paciente = paciente;
                 dados.sala = sala;
-
-                fetch(BASE_URL + "chamada2/processar_chamada", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify(dados)
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Erro na rede');
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === "success") {
-                        const mensagem = `Paciente ${paciente}, dirija-se ao ${sala}`;
-                        if (ws.readyState === WebSocket.OPEN) {
-                            ws.send(JSON.stringify({
-                                type: 'new_call',
-                                number: paciente,
-                                tipo: 'paciente',
-                                sala: sala,
-                                mensagem: mensagem,
-                                fila_id: data.fila_id
-                            }));
-                        }
-                        showFeedback('success', 'Chamada realizada com sucesso!');
-                    } else {
-                        showFeedback('danger', 'Erro: ' + (data.message || "Falha ao enviar"));
-                    }
-                })
-                .catch(error => {
-                    console.error("Erro:", error);
-                    showFeedback('danger', 'Erro de comunicação com o servidor');
-                });
             }
+
+            fetch(BASE_URL + "chamada2/processar_chamada", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify(dados)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erro na rede');
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    showFeedback('success', 'Chamada realizada com sucesso!');
+                    atualizarListas();
+                } else {
+                    showFeedback('danger', 'Erro: ' + (data.message || "Falha ao enviar"));
+                }
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                showFeedback('danger', 'Erro de comunicação com o servidor');
+            });
         }
 
         function finalizarAtendimento() {
@@ -513,17 +438,12 @@
             })
             .then(data => {
                 if (data.status === "success") {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({
-                            type: 'finalize_call',
-                            call_id: senhaAtualId
-                        }));
-                    }
-                    showFeedback('success', 'Atendimento finalizado com sucesso!');
+                    showFeedback('success', 'Atendimento finalizado com sucesso em ambas as tabelas!');
                     senhaAtualId = null;
                     document.getElementById('btnFinalizarSenha').style.display = 'none';
+                    atualizarListas();
                 } else {
-                    showFeedback('danger', 'Erro ao finalizar: ' + (data.message || "Falha ao atualizar"));
+                    showFeedback('danger', 'Erro ao finalizar: ' + (data.message || "Falha ao atualizar as tabelas"));
                 }
             })
             .catch(error => {
@@ -540,51 +460,76 @@
                 ${message}
             `;
             
+            // Remove feedbacks anteriores
             document.querySelectorAll('.feedback-message').forEach(el => el.remove());
+            
             document.body.appendChild(feedback);
             
+            // Remove após 5 segundos
             setTimeout(() => feedback.remove(), 5000);
         }
 
-        function atualizarInterface(call) {
-            if (call.tipo === 'senha') {
-                document.getElementById('senhaChamada').textContent = call.number || '---';
-                document.getElementById('guicheChamada').textContent = call.guiche || '--';
-                senhaAtualId = call.id;
-                document.getElementById('btnFinalizarSenha').style.display = 'block';
-            } else if (call.tipo === 'paciente') {
-                document.getElementById('pacienteChamado').textContent = call.number || '---';
-                document.getElementById('salaChamado').textContent = call.sala || '---';
-            }
-            atualizarFila();
-        }
+        function atualizarListas() {
+            fetch("<?php echo base_url('chamada2/ultimas_chamadas'); ?>")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na requisição');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "success") {
+                        // Última senha
+                        if (data.ultima_senha) {
+                            document.getElementById('senhaChamada').textContent = `${data.ultima_senha.senha || '---'}`;
+                            document.getElementById('guicheChamada').textContent = `${data.ultima_senha.guiche || '--'}`;
+                            senhaAtualId = data.ultima_senha.id;
+                            document.getElementById('btnFinalizarSenha').style.display = 'block';
+                        } else {
+                            document.getElementById('senhaChamada').textContent = "---";
+                            document.getElementById('guicheChamada').textContent = "--";
+                            senhaAtualId = null;
+                            document.getElementById('btnFinalizarSenha').style.display = 'none';
+                        }
 
-        function atualizarFila() {
-            const filaSenhas = document.getElementById('filaSenhas');
-            filaSenhas.innerHTML = '';
+                        // Último paciente
+                        if (data.ultima_paciente) {
+                            document.getElementById('pacienteChamado').textContent = data.ultima_paciente.paciente || '---';
+                            document.getElementById('salaChamado').textContent = data.ultima_paciente.sala|| '---';
+                        }
 
-            chamadasAtivas.forEach(senha => {
-                const item = document.createElement('div');
-                item.className = `senha-item ${senha.id === senhaAtualId ? 'chamada-ativa' : ''}`;
-                item.innerHTML = `
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="status-indicator"></div>
-                        <div>
-                            <div class="fw-bold fs-5">${senha.tipo === 'senha' ? senha.number : senha.number}</div>
-                            <small class="text-muted">${senha.tipo === 'senha' ? 'Guichê ' + senha.guiche : 'Sala ' + senha.sala}</small>
-                        </div>
-                    </div>
-                    <small class="text-muted">${senha.timestamp}</small>
-                `;
-                filaSenhas.appendChild(item);
-            });
+                        // Fila de atendimento
+                        if (data.fila_atendimento) {
+                            const filaSenhas = document.getElementById('filaSenhas');
+                            filaSenhas.innerHTML = '';
+                            
+                            data.fila_atendimento.forEach(senha => {
+                                const item = document.createElement('div');
+                                item.className = `senha-item ${senha.id === senhaAtualId ? 'chamada-ativa' : ''}`;
+                                item.innerHTML = `
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="status-indicator"></div>
+                                        <div>
+                                            <div class="fw-bold fs-5">${senha.senha}</div>
+                                            <small class="text-muted">Guichê ${senha.guiche}</small>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">${senha.hora}</small>
+                                `;
+                                filaSenhas.appendChild(item);
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao atualizar listas:", error);
+                    showFeedback('warning', 'Erro ao atualizar a lista de atendimentos');
+                });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Carrega a fila inicial via WebSocket
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'queue_update' }));
-            }
+            atualizarListas();
+            setInterval(atualizarListas, 10000); // Atualiza a cada 10 segundos
         });
     </script>
 </body>
