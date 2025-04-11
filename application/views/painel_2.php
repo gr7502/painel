@@ -216,21 +216,32 @@
     }
 
     async function exibirEfalarChamada(data) {
-        // Atualiza o texto da última chamada na interface
-        document.getElementById("senhaChamada").innerText = data.mensagem;
-        atualizarUltimosChamados(data);
+  const senhaChamadaElement = document.getElementById("senhaChamada");
+  // Atualiza o texto da última chamada na interface
+  senhaChamadaElement.innerText = data.mensagem;
+  
+  // Adiciona a classe para piscar antes de iniciar a animação da fala
+  senhaChamadaElement.classList.add('piscar');
 
-        try {
-            // Toca o som de alerta antes de falar a mensagem
-            await tocarSomAlerta();
-            // Fala a mensagem após o som
-            await falarTexto(data.mensagem);
-            // Marca a chamada como falada
-            await marcarComoFalada(data.fila_id);
-        } catch (error) {
-            console.error("Erro no fluxo de chamada:", error);
-        }
+  try {
+    // Toca o som de alerta antes de falar a mensagem
+    await tocarSomAlerta();
+    // Fala a mensagem após o som
+    await falarTexto(data.mensagem);
+    // Opcional: Aguarda um pequeno tempo após a fala
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Marca a chamada como falada
+    if (data.fila_id) {
+      await marcarComoFalada(data.fila_id);
     }
+  } catch (error) {
+    console.error("Erro no fluxo de chamada:", error);
+    throw error;
+  } finally {
+    // Remove a classe após o término da fala (ou erro)
+    senhaChamadaElement.classList.remove('piscar');
+  }
+}
 
     function atualizarUltimosChamados(data) {
         const container = document.getElementById('ultimos-chamados');
@@ -265,24 +276,18 @@
     }
 
     function tocarSomAlerta() {
-        return new Promise((resolve) => {
-            const audio = new Audio("<?= base_url('assets/sounds/alert.mp3') ?>");
-            audio.volume = 0.8; // Ajusta o volume (opcional, entre 0.0 e 1.0)
+    return new Promise((resolve) => {
+        const audio = new Audio("<?= base_url('assets/sounds/alert.mp3') ?>");
+        audio.volume = 0.8; // Ajusta o volume (opcional, entre 0.0 e 1.0)
 
-            // Seleciona a seção .chamada
-            const chamadaElement = document.querySelector('.chamada');
-
-            // Adiciona a classe piscando para iniciar a animação
-            chamadaElement.classList.add('piscando');
-
-            audio.onended = resolve; // Resolve a Promise quando o áudio terminar
-            audio.onerror = (err) => {
-                console.error("Erro ao tocar o som de alerta:", err);
-                resolve(); // Resolve mesmo se houver erro, para não travar o fluxo
-            };
-            audio.play();
-        });
-    }
+        audio.onended = resolve; // Resolve a Promise quando o áudio terminar
+        audio.onerror = (err) => {
+            console.error("Erro ao tocar o som de alerta:", err);
+            resolve(); // Resolve mesmo se houver erro, para não travar o fluxo
+        };
+        audio.play();
+    });
+}
 
     function falarTexto(texto) {
         return new Promise((resolve) => {

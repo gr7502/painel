@@ -273,43 +273,55 @@ class Chamada2 extends CI_Controller
     }
 
     // No controller Chamada2.php
-public function finalizar_atendimento() {
-    $this->load->model('Chamada_model');
+    public function finalizar_atendimento() {
+        $this->load->model('Chamada_model');
+        
+        $id = $this->input->post('id');
+        $status = $this->input->post('status');
+        $motivo = $this->input->post('motivo');
     
-    $id = $this->input->post('id');
-    $status = $this->input->post('status');
-    $motivo = $this->input->post('motivo');
-
-    // Atualiza ambas as tabelas em uma transação
-    $this->db->trans_start();
+        // Atualiza ambas as tabelas em uma transação
+        $this->db->trans_start();
+        
+        // 1. Atualiza a tabela fila_chamadas
+        $this->db->where('id', $id)
+                 ->update('fila_chamadas', [
+                     'status' => $status,
+                     'data_finalizacao' => date('Y-m-d H:i:s'),
+                 ]);
+        
+        // 2. Identifica a última senha associada à chamada
+        $this->db->select('id')
+                 ->from('senhas')
+                 ->where('id_fila_chamada', $id)
+                 ->order_by('data_criacao', 'ASC') // Ordena pela data de emissão mais recente
+                 ->limit(1); // Pega apenas a última senha
+        $query = $this->db->get();
+        
+        if ($query->num_rows() > 0) {
+            $senha = $query->row();
+            
+            // Atualiza apenas a última senha encontrada
+            $this->db->where('id', $senha->id)
+                     ->update('senhas', [
+                         'status' => $status,
+                         'hora_finalizacao' => date('Y-m-d H:i:s')
+                     ]);
+        }
+        
+        $this->db->trans_complete();
     
-    // 1. Atualiza a tabela fila_chamadas
-    $this->db->where('id', $id)
-             ->update('fila_chamadas', [
-                 'status' => $status,
-                 'data_finalizacao' => date('Y-m-d H:i:s'),
-             ]);
-    
-    // 2. Atualiza a tabela senhas (assumindo que há um campo de relacionamento)
-    $this->db->where('id_fila_chamada', $id)
-             ->update('senhas', [
-                 'status' => $status,
-                 'hora_finalizacao' => date('Y-m-d H:i:s')
-             ]);
-    
-    $this->db->trans_complete();
-
-    if ($this->db->trans_status() === FALSE) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Falha ao atualizar ambas as tabelas'
-        ]);
-    } else {
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Atendimento finalizado em ambas as tabelas'
-        ]);
+        if ($this->db->trans_status() === FALSE) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Falha ao atualizar as tabelas'
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Atendimento finalizado com sucesso'
+            ]);
+        }
     }
-}
 
 }
