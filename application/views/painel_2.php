@@ -152,7 +152,7 @@
     <?php endif; ?>
 
     <div class="logo-container">
-      <img src="<?php echo base_url('assets/imagens/Senha.png'); ?>" alt="Logo Gees HealthTech">
+      <img src="<?php echo base_url('assets/imagens/Senha.png'); ?>" alt="Logo RedHat logo">
     </div>
 
     <div class="chamada">
@@ -162,7 +162,7 @@
       </div>
     </div>
 
-    <div id="ultimos-chamados">
+    <div id="ultimos-chamados" class="ultimos-chamados">
       <?php if (!empty($ultimasChamadas)): ?>
         <?php foreach ($ultimasChamadas as $chamada): ?>
           <div class="chamado-card">
@@ -192,7 +192,7 @@
   <script src="<?php echo base_url('assets/js/relogio.js'); ?>"></script>
   <script>
     let filaAtiva = false;
-    const intervaloVerificacao = 10000;
+    const intervaloVerificacao = 8000;
 
     async function verificarFila() {
         if (filaAtiva) return;
@@ -235,14 +235,14 @@
             if (data.fila_id) {
                 await marcarComoFalada(data.fila_id);
             }
-            // Atualiza a lista de últimos chamados
-            await atualizarUltimosChamados();
         } catch (error) {
             console.error("Erro no fluxo de chamada:", error);
         } finally {
             // Remove a classe após o término
             console.log('Removendo classe piscando');
             chamadaElement.classList.remove('piscando');
+            // Atualiza a lista de últimos chamados ao final do processo
+            await atualizarUltimosChamados();
         }
     }
 
@@ -329,7 +329,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         setInterval(verificarFila, intervaloVerificacao);
         verificarFila();
-        atualizarUltimosChamados(); // Carrega a lista inicial
     });
   </script>
 </body>
