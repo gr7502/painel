@@ -6,6 +6,8 @@ class Configuration extends CI_Controller {
     public function __construct(){
         parent::__construct();
         $this->load->model('Configuration_model');
+        $this->load->model('Chamada_model');
+        $this->load->library('session');
         $this->load->helper(array('form', 'url'));
     }
     
@@ -49,6 +51,7 @@ class Configuration extends CI_Controller {
     
     public function painel_2(){
         $data['config'] = $this->Configuration_model->get_config();
+        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(6);
         $this->load->view('painel_2', $data);
     }
 }

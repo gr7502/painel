@@ -262,7 +262,7 @@
     <div class="container">
         <header>
             <div class="logo">
-                <img src="<?php echo base_url('assets/imagens/Senha.png'); ?>" alt="Logo Gees HealthTech">
+               <a href="<?php echo base_url('welcome/index'); ?>"> <img src="<?php echo base_url('assets/imagens/Senha.png'); ?>" alt="Logo Gees HealthTech"></a>
             </div>
             <h1>Configurações do Painel</h1>
         </header>

@@ -324,4 +324,23 @@ class Chamada2 extends CI_Controller
         }
     }
 
+    public function get_ultimas_chamadas() {
+        $this->load->model('Chamada_model');
+        
+        // Busca os últimos 5 chamados (ajuste o limite conforme necessário)
+        $chamadas = $this->Chamada_model->get_ultimas_chamadas(5);
+        
+        if ($chamadas) {
+            echo json_encode([
+                'status' => 'success',
+                'chamadas' => $chamadas
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'success',
+                'chamadas' => []
+            ]);
+        }
+    }
+
 }

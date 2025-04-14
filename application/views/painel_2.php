@@ -32,7 +32,7 @@
       width: 100%;
       height: 100%;
       background: white;
-      position: relative; /* Para posicionar elementos absolutos dentro */
+      position: relative;
     }
 
     .chamada {
@@ -53,7 +53,6 @@
       font-size: 4vw;
     }
 
-    /* Animação de piscar */
     @keyframes piscar {
         0% { opacity: 1; }
         50% { opacity: 0.5; }
@@ -61,12 +60,13 @@
     }
 
     .chamada.piscando {
-        animation: piscar 0.5s ease-in-out 3; /* Pisca 3 vezes, 0.5s por ciclo */
+        animation: piscar 0.5s ease-in-out 3;
+        transform: translateZ(0); /* Força renderização por hardware */
     }
 
     .logo-container {
       position: absolute;
-      bottom: 10px; /* Movido para a parte inferior */
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
@@ -82,7 +82,7 @@
       position: absolute;
       top: 10px;
       left: 10px;
-      max-width: 150px; 
+      max-width: 150px;
       height: auto;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -147,12 +147,10 @@
 
 <body>
   <div class="container">
-    <!-- Imagem configurada no topo à esquerda -->
     <?php if (isset($config->image_url) && !empty($config->image_url)): ?>
       <img src="<?php echo $config->image_url; ?>" alt="Imagem Configurada" class="config-image">
     <?php endif; ?>
 
-    <!-- Logo movida para a parte inferior -->
     <div class="logo-container">
       <img src="<?php echo base_url('assets/imagens/Senha.png'); ?>" alt="Logo Gees HealthTech">
     </div>
@@ -209,62 +207,79 @@
                 await exibirEfalarChamada(data);
             }
         } catch (error) {
-            console.error("Erro na verificação da fila:", error);
+            console.error("Erro na verificação da fila:", error); 
         } finally {
             filaAtiva = false;
         }
     }
 
     async function exibirEfalarChamada(data) {
-  const senhaChamadaElement = document.getElementById("senhaChamada");
-  // Atualiza o texto da última chamada na interface
-  senhaChamadaElement.innerText = data.mensagem;
-  
-  // Adiciona a classe para piscar antes de iniciar a animação da fala
-  senhaChamadaElement.classList.add('piscar');
+        const chamadaElement = document.querySelector('.chamada');
+        const senhaChamadaElement = document.getElementById("senhaChamada");
 
-  try {
-    // Toca o som de alerta antes de falar a mensagem
-    await tocarSomAlerta();
-    // Fala a mensagem após o som
-    await falarTexto(data.mensagem);
-    // Opcional: Aguarda um pequeno tempo após a fala
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Marca a chamada como falada
-    if (data.fila_id) {
-      await marcarComoFalada(data.fila_id);
-    }
-  } catch (error) {
-    console.error("Erro no fluxo de chamada:", error);
-    throw error;
-  } finally {
-    // Remove a classe após o término da fala (ou erro)
-    senhaChamadaElement.classList.remove('piscar');
-  }
-}
+        // Atualiza o texto da última chamada na interface
+        senhaChamadaElement.innerText = data.mensagem;
+        
+        // Adiciona a classe para piscar
+        console.log('Adicionando classe piscando');
+        chamadaElement.classList.add('piscando');
 
-    function atualizarUltimosChamados(data) {
-        const container = document.getElementById('ultimos-chamados');
-        const semChamadas = document.getElementById('sem-chamadas');
-
-        // Remove a mensagem "sem chamadas" se ela existir
-        if (semChamadas) {
-            semChamadas.remove(); // Remove completamente o elemento
+        try {
+            // Toca o som de alerta antes de falar a mensagem
+            await tocarSomAlerta();
+            // Fala a mensagem após o som
+            await falarTexto(data.mensagem);
+            // Aguarda um tempo adicional para garantir que a animação complete
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Marca a chamada como falada
+            if (data.fila_id) {
+                await marcarComoFalada(data.fila_id);
+            }
+            // Atualiza a lista de últimos chamados
+            await atualizarUltimosChamados();
+        } catch (error) {
+            console.error("Erro no fluxo de chamada:", error);
+        } finally {
+            // Remove a classe após o término
+            console.log('Removendo classe piscando');
+            chamadaElement.classList.remove('piscando');
         }
+    }
 
-        // Adiciona o novo chamado à lista
-        const novoChamado = document.createElement('div');
-        novoChamado.className = 'chamado-card';
-        novoChamado.innerHTML = `
-            <div class="info">
-                <span class="fw-bold">${data.tipo.toUpperCase()}</span>
-                <span class="numero">${data.dados.senha || data.dados.paciente}</span>
-            </div>
-            <div class="destino">
-                <span>${data.dados.guiche || data.dados.sala}</span>
-            </div>
-        `;
-        container.insertBefore(novoChamado, container.firstChild);
+    async function atualizarUltimosChamados() {
+        try {
+            const response = await fetch("<?= site_url('chamada2/get_ultimas_chamadas') ?>");
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            const container = document.getElementById('ultimos-chamados');
+            container.innerHTML = ''; // Limpa a lista atual
+
+            if (data.status === "success" && data.chamadas && data.chamadas.length > 0) {
+                data.chamadas.forEach(chamada => {
+                    const novoChamado = document.createElement('div');
+                    novoChamado.className = 'chamado-card';
+                    novoChamado.innerHTML = `
+                        <div class="info">
+                            <span class="fw-bold">${chamada.tipo.toUpperCase()}</span>
+                            <span class="numero">${chamada.senha || chamada.paciente}</span>
+                        </div>
+                        <div class="destino">
+                            <span>${chamada.guiche || chamada.sala}</span>
+                        </div>
+                    `;
+                    container.appendChild(novoChamado);
+                });
+            } else {
+                container.innerHTML = `
+                    <div id="sem-chamadas" class="sem-chamadas">
+                        <p class="fw-bold">Nenhuma chamada recente.</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar últimos chamados:", error);
+        }
     }
 
     async function marcarComoFalada(filaId) {
@@ -276,18 +291,18 @@
     }
 
     function tocarSomAlerta() {
-    return new Promise((resolve) => {
-        const audio = new Audio("<?= base_url('assets/sounds/alert.mp3') ?>");
-        audio.volume = 0.8; // Ajusta o volume (opcional, entre 0.0 e 1.0)
+        return new Promise((resolve) => {
+            const audio = new Audio("<?= base_url('assets/sounds/alert.mp3') ?>");
+            audio.volume = 0.8;
 
-        audio.onended = resolve; // Resolve a Promise quando o áudio terminar
-        audio.onerror = (err) => {
-            console.error("Erro ao tocar o som de alerta:", err);
-            resolve(); // Resolve mesmo se houver erro, para não travar o fluxo
-        };
-        audio.play();
-    });
-}
+            audio.onended = resolve;
+            audio.onerror = (err) => {
+                console.error("Erro ao tocar o som de alerta:", err);
+                resolve();
+            };
+            audio.play();
+        });
+    }
 
     function falarTexto(texto) {
         return new Promise((resolve) => {
@@ -311,10 +326,10 @@
         });
     }
 
-    // Inicia o sistema ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
         setInterval(verificarFila, intervaloVerificacao);
         verificarFila();
+        atualizarUltimosChamados(); // Carrega a lista inicial
     });
   </script>
 </body>
