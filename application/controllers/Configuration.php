@@ -25,8 +25,8 @@ class Configuration extends CI_Controller {
         // die();
         if (!empty($_FILES['image_file']['name'])) {
             $config['upload_path'] = './uploads/';
-            $config['allowed_types'] = 'gif|jpg|png';
-            $config['max_size'] = 2048; // 2MB limite (opcional)
+            $config['allowed_types'] = 'gif|jpg|png|jpeg|webp|mp4|mp3';
+            $config['max_size'] = 65535; // 64MB
             $this->load->library('upload', $config);
             
             if ($this->upload->do_upload('image_file')) {
@@ -48,10 +48,28 @@ class Configuration extends CI_Controller {
             redirect('configuration?error=1');
         }
     }
+
+    public function painel(){
+        $data['config'] = $this->Configuration_model->get_config();
+        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(5);
+        $this->load->view('painel', $data);
+    }
     
     public function painel_2(){
         $data['config'] = $this->Configuration_model->get_config();
-        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(6);
+        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(7);
         $this->load->view('painel_2', $data);
+    }
+
+    public function painel_3(){
+        $data['config'] = $this->Configuration_model->get_config();
+        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(5);
+        $this->load->view('painel_3', $data);
+    }
+
+    public function painel_4(){
+        $data['config'] = $this->Configuration_model->get_config();
+        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(7);
+        $this->load->view('painel_4', $data);
     }
 }

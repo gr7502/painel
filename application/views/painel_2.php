@@ -78,14 +78,20 @@
       height: auto;
     }
 
-    .config-image {
+    .config-media {
       position: absolute;
       top: 10px;
       left: 10px;
-      max-width: 150px;
+      width: 250px;
       height: auto;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      object-fit: contain; /* Garante que o conteúdo se ajuste sem distorção */
+    }
+
+    .config-media video {
+      width: 250px;
+      height: auto;
     }
 
     .relogio {
@@ -148,7 +154,19 @@
 <body>
   <div class="container">
     <?php if (isset($config->image_url) && !empty($config->image_url)): ?>
-      <img src="<?php echo $config->image_url; ?>" alt="Imagem Configurada" class="config-image">
+      <?php
+        // Determina o tipo de arquivo com base na extensão
+        $ext = strtolower(pathinfo($config->image_url, PATHINFO_EXTENSION));
+        $isVideo = in_array($ext, ['mp4', 'webm']);
+      ?>
+      <?php if ($isVideo): ?>
+        <video src="<?php echo htmlspecialchars($config->image_url); ?>" class="config-media" autoplay loop muted playsinline>
+          <source src="<?php echo htmlspecialchars($config->image_url); ?>" type="video/<?php echo $ext; ?>">
+          Seu navegador não suporta vídeos.
+        </video>
+      <?php else: ?>
+        <img src="<?php echo htmlspecialchars($config->image_url); ?>" alt="Imagem Configurada" class="config-media">
+      <?php endif; ?>
     <?php endif; ?>
 
     <div class="logo-container">
@@ -256,7 +274,9 @@
             container.innerHTML = ''; // Limpa a lista atual
 
             if (data.status === "success" && data.chamadas && data.chamadas.length > 0) {
-                data.chamadas.forEach(chamada => {
+                // Limita aos últimos 7 chamados
+                const ultimosSete = data.chamadas.slice(0, 7);
+                ultimosSete.forEach(chamada => {
                     const novoChamado = document.createElement('div');
                     novoChamado.className = 'chamado-card';
                     novoChamado.innerHTML = `

@@ -118,7 +118,7 @@ class Chamada_model extends CI_Model {
         return $this->db->get('fila_chamadas')->result_array();
     }
 
-    public function get_ultimas_chamadas($limit = 6) {
+    public function get_ultimas_chamadas($limit = 8) {
         $this->db->select('tipo, senha, paciente, guiche, sala, data_entrada');
         $this->db->where('DATE(data_entrada)', date('Y-m-d')); // Filtra por data atual
         $this->db->order_by('data_entrada', 'DESC');

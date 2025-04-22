@@ -28,7 +28,7 @@
     }
 
     // Definindo a cor primária a partir do banco de dados
-    $primary_color = isset($config->primary_color) ? $config->primary_color : '#6a11cb'; // Cor padrão caso não exista
+    $primary_color = isset($config->primary_color) ? $config->primary_color : '#6a11cb'; // Cor padrão
     $secondary_color = adjustBrightness($primary_color, 30); // Cor secundária mais clara
     $accent_color = adjustBrightness($primary_color, 50); // Cor de destaque mais clara
     $danger_color = '#ef4444'; // Cor de perigo fixa
@@ -364,8 +364,8 @@
             if (tipo === "senha") {
                 const guicheField = document.getElementById('guiche');
                 const guiche = guicheField ? guicheField.value.trim() : null;
-                if (!guiche) {
-                    alert("Selecione um guichê!");
+                if (!guiche || guiche === "Selecione o Guichê...") {
+                    showFeedback('warning', "Selecione um guichê!");
                     return;
                 }
                 dados.guiche = guiche;
@@ -374,8 +374,8 @@
                 const salaField = document.getElementById('sala');
                 const paciente = pacienteField ? pacienteField.value.trim() : null;
                 const sala = salaField ? salaField.value.trim() : null;
-                if (!paciente || !sala) {
-                    alert("Selecione um paciente e uma sala!");
+                if (!paciente || paciente === "Selecione o paciente..." || !sala || sala === "Selecione a sala...") {
+                    showFeedback('warning', "Selecione um paciente e uma sala!");
                     return;
                 }
                 dados.paciente = paciente;
@@ -409,46 +409,58 @@
         }
 
         function finalizarAtendimento() {
-            if (!senhaAtualId) {
-                showFeedback('warning', 'Nenhuma senha em atendimento para finalizar!');
+            if (!senhaAtualId || isNaN(senhaAtualId)) {
+                showFeedback('warning', 'Nenhuma senha válida em atendimento para finalizar!');
                 return;
             }
 
-            if (!confirm("Deseja realmente finalizar este atendimento?\n\n")) {
+            if (!confirm("Deseja realmente finalizar este atendimento?")) {
                 return;
             }
 
             const BASE_URL = "<?php echo base_url(); ?>";
             
+            const dados = {
+                id: senhaAtualId,
+                status: 'finalizada',
+                motivo: 'atendimento_concluido'
+            };
+
+            console.log("Enviando dados para finalização:", dados);
+
             fetch(BASE_URL + "chamada2/finalizar_atendimento", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json; charset=UTF-8",
                     "X-Requested-With": "XMLHttpRequest"
                 },
-                body: JSON.stringify({ 
-                    id: senhaAtualId,
-                    status: 'finalizada',
-                    motivo: 'atendimento_concluido'
-                })
+                body: JSON.stringify(dados)
             })
             .then(response => {
-                if (!response.ok) throw new Error('Erro na rede');
-                return response.json();
+                console.log("Status da resposta HTTP:", response.status, response.statusText);
+                if (!response.ok) {
+                    throw new Error(`Erro na rede: ${response.status} ${response.statusText}`);
+                }
+                return response.json().catch(err => {
+                    throw new Error('Resposta não é JSON válido');
+                });
             })
             .then(data => {
+                console.log("Resposta do servidor:", data);
                 if (data.status === "success") {
-                    showFeedback('success', 'Atendimento finalizado com sucesso em ambas as tabelas!');
+                    showFeedback('success', 'Atendimento finalizado com sucesso!');
                     senhaAtualId = null;
+                    document.getElementById('senhaChamada').textContent = '---';
+                    document.getElementById('guicheChamada').textContent = '--';
                     document.getElementById('btnFinalizarSenha').style.display = 'none';
                     atualizarListas();
                 } else {
-                    showFeedback('danger', 'Erro ao finalizar: ' + (data.message || "Falha ao atualizar as tabelas"));
+                    showFeedback('danger', 'Erro ao finalizar: ' + (data.message || 'Falha ao atualizar o status'));
                 }
             })
             .catch(error => {
-                console.error("Erro:", error);
-                showFeedback('danger', 'Erro de comunicação com o servidor');
+                console.error("Erro ao finalizar atendimento:", error);
+                showFeedback('danger', 'Erro de comunicação com o servidor: ' + error.message);
             });
         }
 
@@ -473,29 +485,32 @@
             fetch("<?php echo base_url('chamada2/ultimas_chamadas'); ?>")
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Erro na requisição');
+                        throw new Error('Erro na requisição: ' + response.statusText);
                     }
                     return response.json();
                 })
                 .then(data => {
+                    console.log("Dados recebidos em atualizarListas:", data); // Log para depuração
                     if (data.status === "success") {
                         // Última senha
-                        if (data.ultima_senha) {
+                        if (data.ultima_senha && data.ultima_senha.senha_id) {
                             document.getElementById('senhaChamada').textContent = `${data.ultima_senha.senha || '---'}`;
                             document.getElementById('guicheChamada').textContent = `${data.ultima_senha.guiche || '--'}`;
-                            senhaAtualId = data.ultima_senha.id;
+                            senhaAtualId = data.ultima_senha.senha_id; // Usar senha_id em vez de id
+                            console.log("Atribuindo senhaAtualId (senha_id):", senhaAtualId); // Log para verificar
                             document.getElementById('btnFinalizarSenha').style.display = 'block';
                         } else {
                             document.getElementById('senhaChamada').textContent = "---";
                             document.getElementById('guicheChamada').textContent = "--";
                             senhaAtualId = null;
+                            console.log("Nenhuma senha ativa, senhaAtualId resetado para null");
                             document.getElementById('btnFinalizarSenha').style.display = 'none';
                         }
 
                         // Último paciente
                         if (data.ultima_paciente) {
                             document.getElementById('pacienteChamado').textContent = data.ultima_paciente.paciente || '---';
-                            document.getElementById('salaChamado').textContent = data.ultima_paciente.sala|| '---';
+                            document.getElementById('salaChamado').textContent = data.ultima_paciente.sala || '---';
                         }
 
                         // Fila de atendimento
@@ -505,7 +520,7 @@
                             
                             data.fila_atendimento.forEach(senha => {
                                 const item = document.createElement('div');
-                                item.className = `senha-item ${senha.id === senhaAtualId ? 'chamada-ativa' : ''}`;
+                                item.className = `senha-item ${senha.senha_id === senhaAtualId ? 'chamada-ativa' : ''}`;
                                 item.innerHTML = `
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="status-indicator"></div>
@@ -519,6 +534,8 @@
                                 filaSenhas.appendChild(item);
                             });
                         }
+                    } else {
+                        console.error("Erro na resposta de ultimas_chamadas:", data.message || "Sem mensagem");
                     }
                 })
                 .catch(error => {

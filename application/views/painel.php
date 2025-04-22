@@ -31,7 +31,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow: hidden; /* Bloqueia rolagem vertical e horizontal */
       color: var(--cor-texto);
     }
 
@@ -72,30 +72,34 @@
       border: 2px solid rgba(255, 255, 255, 0.3);
       display: inline-block;
       transition: all 0.3s ease;
+      font-size: 3rem; /* Aumentado de 2.5rem para 3rem */
     }
 
     /* Layout Principal */
     .main-container {
       flex: 1;
-      padding: 1.5rem;
+      padding: 1.5rem 0; /* Reduzido padding lateral para 0 */
     }
 
     .content-wrapper {
       display: flex;
-      gap: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
+      flex-direction: row;
+      width: 100%; /* Ocupa toda a largura do dispositivo */
+      margin: 0; /* Remove margens para ocupar toda a largura */
     }
 
     /* Seção de Mídia */
     .container-midia {
-      flex: 2;
+      width: 65%; /* Ocupa 65% da largura */
       background: var(--cor-secundaria);
       border-radius: var(--borda-radius);
       box-shadow: var(--sombra);
       overflow: hidden;
-      min-height: 500px;
+      min-width: 0; /* Remove min-width fixo para ocupar proporção */
+      height: calc(100vh - 220px); /* Igual à altura do aside */
+      display: flex; /* Para centralização vertical */
+      align-items: center; /* Centraliza verticalmente */
+      justify-content: center; /* Centraliza horizontalmente */
       transition: transform 0.3s ease;
     }
 
@@ -105,23 +109,26 @@
 
     .container-midia img,
     .container-midia video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      width: 100%; /* Ocupa toda a largura do container */
+      min-width: 0; /* Remove min-width fixo */
+      max-height: 100%; /* Limita altura à do container */
+      height: auto; /* Mantém proporção */
+      object-fit: contain; /* Exibe mídia completamente sem cortes */
       border-radius: var(--borda-radius);
     }
 
     /* Lista de Chamados */
     aside {
-      flex: 1;
-      max-width: 400px;
+      width: 35%; /* Ocupa o restante (35%) */
       background: var(--cor-secundaria);
       border-radius: var(--borda-radius);
       box-shadow: var(--sombra);
       padding: 2rem;
       border-left: 4px solid var(--cor-primaria);
-      height: calc(100vh - 220px);
-      overflow-y: auto;
+      height: calc(100vh - 220px); /* Altura fixa */
+      overflow-y: auto; /* Rolagem interna apenas para o aside */
+      display: flex;
+      flex-direction: column;
     }
 
     aside h2 {
@@ -135,7 +142,7 @@
       border-bottom: 2px solid var(--cor-primaria-transparente);
     }
 
-    .chamada {
+    .chamado-card {
       background: rgba(245, 245, 245, 0.9);
       padding: 1.25rem;
       margin-bottom: 1rem;
@@ -144,33 +151,70 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .chamada:hover {
+    .chamado-card:hover {
       transform: translateX(8px);
       box-shadow: var(--sombra);
       border-color: var(--cor-primaria-transparente);
     }
 
-    .chamada:nth-child(odd) {
+    .chamado-card:nth-child(odd) {
       background: rgba(0, 71, 171, 0.03);
     }
 
-    .senha, .paciente-info {
+    .info, .destino {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.5rem;
+      font-size: 1.6rem;
     }
 
     .fw-bold {
       color: var(--cor-primaria);
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1.3rem; /* Aumentado de 1.1rem para 1.3rem */
     }
 
-    .numero-senha, .nome {
-      font-size: 1.1rem;
+    .numero {
+      font-size: 1.7rem; 
       font-weight: 500;
-      color: var(--cor-texto);
+      color: var(--cor-primaria);
+    }
+
+    .sem-chamadas {
+      text-align: center;
+      padding: 1rem;
+      color: var(--cor-texto-secundario);
+    }
+
+    /* Estilização do Relógio */
+    .relogio-container {
+      margin-top: auto; /* Empurra o relógio para o final do aside */
+      padding: 1rem;
+      background: rgba(245, 245, 245, 0.9);
+      border-radius: var(--borda-radius);
+      border: 1px solid var(--cor-primaria-transparente);
+      box-shadow: var(--sombra);
+      text-align: center;
+    }
+
+    .relogio {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--cor-primaria);
+      letter-spacing: 1px;
+      padding: 0.5rem 1rem;
+      background: var(--cor-secundaria);
+      border-radius: 8px;
+      border: 2px solid var(--cor-primaria);
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .relogio:hover {
+      background: var(--cor-primaria);
+      color: var(--cor-secundaria);
+      border-color: var(--cor-primaria-hover);
     }
 
     /* Footer Estilizado */
@@ -200,18 +244,29 @@
     }
 
     /* Responsividade */
-    @media (max-width: 1200px) {
+    @media (max-width: 1600px) {
       .content-wrapper {
         flex-direction: column;
       }
 
       .container-midia {
-        min-height: 400px;
+        width: 100%; 
+        min-width: 0; 
+        min-height: 400px; 
+        height: auto; 
+        display: block; 
+      }
+
+      .container-midia img,
+      .container-midia video {
+        min-width: 0;
+        max-height: 400px; 
+        height: auto;
       }
 
       aside {
-        max-width: 100%;
-        height: auto;
+        width: 100%; /* Ocupa largura total */
+        height: auto; /* Altura automática */
       }
     }
 
@@ -221,11 +276,37 @@
       }
 
       .container-midia {
-        min-height: 300px;
+        min-height: 300px; 
+        min-width: 0;
       }
 
-      .chamada {
+      .container-midia img,
+      .container-midia video {
+        min-width: 0;
+        max-height: 300px; /* Ajusta altura máxima */
+        height: auto;
+      }
+
+      .chamado-card {
         padding: 1rem;
+      }
+
+      .fw-bold {
+        font-size: 1.2rem; /* Ajuste proporcional para telas menores */
+      }
+
+      .numero {
+        font-size: 1.5rem; /* Ajuste proporcional para telas menores */
+        color: var(--cor-primaria );
+      }
+
+      #senhaChamada {
+        font-size: 2.5rem; /* Ajuste proporcional para telas menores */
+      }
+
+      .relogio {
+        font-size: 1.1rem;
+        padding: 0.4rem 0.8rem;
       }
     }
 
@@ -236,6 +317,33 @@
 
       #senhaChamada {
         padding: 0.75rem 1.5rem;
+        font-size: 2rem; /* Ajuste proporcional para telas menores */
+      }
+
+      .container-midia {
+        min-height: 200px; /* Altura mínima para telas pequenas */
+        min-width: 0;
+      }
+
+      .container-midia img,
+      .container-midia video {
+        min-width: 0;
+        max-height: 200px; /* Ajusta altura máxima */
+        height: auto;
+      }
+
+      .fw-bold {
+        font-size: 1.1rem; /* Ajuste proporcional para telas menores */
+      }
+
+      .numero {
+        font-size: 1.5rem;
+        color: var(--cor-primaria); 
+      }
+
+      .relogio {
+        font-size: 1rem;
+        padding: 0.3rem 0.6rem;
       }
     }
   </style>
@@ -245,7 +353,6 @@
   <header class="info-consulta-header">
     <div class="container">
       <div id="mensagemSenha">
-        <span style="font-size: 1.1rem; font-weight: 400;">Última chamada:</span>
         <strong id="senhaChamada">Carregando...</strong>
       </div>
     </div>
@@ -254,80 +361,193 @@
   <div class="main-container">
     <div class="content-wrapper">
       <div class="container-midia">
-        <?php if(isset($midia_painel) && $midia_painel): ?>
-          <?php if($midia_painel['tipo'] == 'imagem'): ?>
-            <img src="<?php echo base_url($midia_painel['caminho']); ?>" alt="Mídia">
-          <?php elseif($midia_painel['tipo'] == 'video'): ?>
-            <video width="100%" height="100%" controls autoplay loop muted playsinline>
-              <source src="<?php echo base_url($midia_painel['caminho']); ?>" type="video/mp4">
-            </video>
-          <?php endif; ?>
-        <?php endif; ?>
+      <?php if (isset($config->image_url) && !empty($config->image_url)): ?>
+      <?php
+        // Determina o tipo de arquivo com base na extensão
+        $ext = strtolower(pathinfo($config->image_url, PATHINFO_EXTENSION));
+        $isVideo = in_array($ext, ['mp4', 'webm']);
+      ?>
+      <?php if ($isVideo): ?>
+        <video src="<?php echo htmlspecialchars($config->image_url); ?>" class="config-media" autoplay loop muted playsinline>
+          <source src="<?php echo htmlspecialchars($config->image_url); ?>" type="video/<?php echo $ext; ?>">
+          Seu navegador não suporta vídeos.
+        </video>
+      <?php else: ?>
+        <img src="<?php echo htmlspecialchars($config->image_url); ?>" alt="Imagem Configurada" class="config-media">
+      <?php endif; ?>
+    <?php endif; ?>
       </div>
 
       <aside>
-        <h2>ÚLTIMOS CHAMADOS</h2>
-        <div id="ultimasChamadas">
+        <h2 class"text-center">ÚLTIMOS CHAMADOS</h2>
+        <div id="ultimos-chamados">
           <?php if (!empty($ultimasChamadas)): ?>
             <?php foreach ($ultimasChamadas as $index => $chamada): ?>
-              <div class="chamada">
-                <div class="<?= $chamada['tipo'] === 'senha' ? 'senha' : 'paciente-info' ?>">
-                  <span class="fw-bold"><?= strtoupper($chamada['tipo']) ?></span>
-                  <span class="<?= $chamada['tipo'] === 'senha' ? 'numero-senha' : 'nome' ?>">
-                    <?= $chamada[$chamada['tipo'] === 'senha' ? 'senha' : 'paciente'] ?>
-                  </span>
+              <div class="chamado-card">
+                <div class="info">
+                  <span class="numero"><?= $chamada[$chamada['tipo'] === 'senha' ? 'senha' : 'paciente'] ?></span>
                 </div>
-                <div class="<?= $chamada['tipo'] === 'senha' ? 'guiche' : 'destino' ?>">
-                  <?= $chamada[$chamada['tipo'] === 'senha' ? 'guiche' : 'sala'] ?>
+                <div class="destino">
+                  <strong><?= $chamada[$chamada['tipo'] === 'senha' ? 'guiche' : 'sala'] ?></strong>
                 </div>
               </div>
             <?php endforeach; ?>
           <?php else: ?>
-            <div class="chamada">
-              <div class="text-center">Nenhuma chamada recente</div>
+            <div class="sem-chamadas">
+              <p class="fw-bold">Nenhuma chamada recente.</p>
             </div>
           <?php endif; ?>
+        </div>
+        <div class="relogio-container">
+          <div id="relogio" class="relogio"></div>
         </div>
       </aside>
     </div>
   </div>
 
-  <footer class="footer">
-    <div class="container">
-      <span>Powered by <strong>Gees</strong> | ATENDIMENTOS - CLÍNICA MAIS SAÚDE | <?= date('d/m/Y H:i') ?></span>
-    </div>
-  </footer>
-
+  <script src="<?php echo base_url('assets/js/relogio.js'); ?>"></script>
   <script>
-    // Scripts JavaScript mantidos conforme necessidade
     let filaAtiva = false;
-    const intervaloVerificacao = 10000;
+    const intervaloVerificacao = 8000;
 
-    async function verificarChamada() {
-      if (filaAtiva) return;
-      filaAtiva = true;
+    async function verificarFila() {
+        if (filaAtiva) return;
+        filaAtiva = true;
 
-      try {
-        const response = await fetch("<?= site_url('chamada2/get_proxima_chamada') ?>");
-        const data = await response.json();
+        try {
+            const response = await fetch("<?= site_url('chamada2/get_proxima_chamada') ?>");
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
 
-        if (data.status === "success") {
-          await exibirEfalarChamada(data);
+            if (data.status === "success") {
+                await exibirEfalarChamada(data);
+            }
+        } catch (error) {
+            console.error("Erro na verificação da fila:", error);
+            document.getElementById("senhaChamada").innerText = "Erro ao carregar";
+        } finally {
+            filaAtiva = false;
         }
-      } catch (error) {
-        console.error("Erro na verificação da chamada:", error);
-        document.getElementById("senhaChamada").innerText = "Erro ao carregar";
-      } finally {
-        filaAtiva = false;
-      }
     }
 
-    // Restante dos scripts mantido igual
-    // ... (manter o restante do JavaScript original)
+    async function exibirEfalarChamada(data) {
+        const chamadaElement = document.querySelector('.info-consulta-header');
+        const senhaChamadaElement = document.getElementById("senhaChamada");
+
+        // Atualiza o texto da última chamada na interface
+        senhaChamadaElement.innerText = data.mensagem;
+        
+        // Adiciona a classe para piscar
+        console.log('Adicionando classe piscando');
+        chamadaElement.classList.add('piscando');
+
+        try {
+            // Toca o som de alerta antes de falar a mensagem
+            await tocarSomAlerta();
+            // Fala a mensagem após o som
+            await falarTexto(data.mensagem);
+            // Aguarda um tempo adicional para garantir que a animação complete
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Marca a chamada como falada
+            if (data.fila_id) {
+                await marcarComoFalada(data.fila_id);
+            }
+        } catch (error) {
+            console.error("Erro no fluxo de chamada:", error);
+        } finally {
+            // Remove a classe após o término
+            console.log('Removendo classe piscando');
+            chamadaElement.classList.remove('piscando');
+            // Atualiza a lista de últimos chamados ao final do processo
+            await atualizarUltimosChamados();
+        }
+    }
+
+    async function atualizarUltimosChamados() {
+        try {
+            const response = await fetch("<?= site_url('chamada2/get_ultimas_chamadas') ?>");
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            const container = document.getElementById('ultimos-chamados');
+            container.innerHTML = ''; // Limpa a lista atual
+
+            if (data.status === "success" && data.chamadas && data.chamadas.length > 0) {
+                // Limita aos últimos 5 chamados
+                const ultimosCinco = data.chamadas.slice(0, 5);
+                  ultimosCinco.forEach(chamada => {
+                      const novoChamado = document.createElement('div');
+                      novoChamado.className = 'chamado-card';
+                      novoChamado.innerHTML = `
+                          <div class="info">
+                              <span class="numero">${chamada.senha || chamada.paciente}</span>
+                          </div>
+                          <div class="destino">
+                              <strong><span>${chamada.guiche || chamada.sala}</span></strong>
+                          </div>
+                      `;
+                      container.appendChild(novoChamado);
+                  });
+            } else {
+                container.innerHTML = `
+                    <div id="sem-chamadas" class="sem-chamadas">
+                        <p class="fw-bold">Nenhuma chamada recente.</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar últimos chamados:", error);
+        }
+    }
+
+    async function marcarComoFalada(filaId) {
+        try {
+            await fetch(`<?= site_url('chamada2/marcar_como_falada/') ?>${filaId}`);
+        } catch (error) {
+            console.error("Erro ao marcar como falada:", error);
+        }
+    }
+
+    function tocarSomAlerta() {
+        return new Promise((resolve) => {
+            const audio = new Audio("<?= base_url('assets/sounds/alert.mp3') ?>");
+            audio.volume = 0.8;
+
+            audio.onended = resolve;
+            audio.onerror = (err) => {
+                console.error("Erro ao tocar o som de alerta:", err);
+                resolve();
+            };
+            audio.play();
+        });
+    }
+
+    function falarTexto(texto) {
+        return new Promise((resolve) => {
+            if (!window.speechSynthesis || !window.speechSynthesis.speak) {
+                console.warn("Síntese de voz não suportada ou desativada no navegador.");
+                return resolve();
+            }
+
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0; // Ajuste de volume máximo
+
+            utterance.onend = resolve;
+            utterance.onerror = (err) => {
+                console.error("Erro na fala:", err);
+                resolve();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
-      setInterval(verificarChamada, intervaloVerificacao);
-      verificarChamada();
+        setInterval(verificarFila, intervaloVerificacao);
+        verificarFila();
     });
   </script>
 </body>

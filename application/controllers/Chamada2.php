@@ -54,7 +54,7 @@ class Chamada2 extends CI_Controller
                     'senha'    => isset($chamada['senha']) ? $chamada['senha'] : null,
                     'guiche'   => isset($chamada['guiche']) ? $chamada['guiche'] : null,
                     'paciente' => isset($chamada['paciente']) ? $chamada['paciente'] : null,
-                    'sala'     => isset($chamada['consultorio']) ? $chamada['consultorio'] : null
+                    'sala'     => isset($chamada['sala']) ? $chamada['sala'] : null
                 ]
             ];
         } else {
@@ -190,35 +190,38 @@ class Chamada2 extends CI_Controller
     
     
 
-    public function ultimas_chamadas()
-    {
-        try {
-            $this->load->model('Chamada_model');
-
-            // Busca a última chamada de senha
-            $ultima_senha = $this->Chamada_model->get_ultima_por_tipo('senha');
-
-            // Busca a última chamada de paciente
-            $ultima_paciente = $this->Chamada_model->get_ultima_por_tipo('paciente');
-
-            $response = [
-                'status' => 'success',
-                'ultima_senha' => $ultima_senha,
-                'ultima_paciente' => $ultima_paciente,
-                'timestamp' => date('Y-m-d H:i:s')
-            ];
-
-        } catch (Exception $e) {
-            log_message('error', 'Erro em ultimas_chamadas: ' . $e->getMessage());
-            $response = [
-                'status' => 'error',
-                'message' => 'Erro ao buscar últimas chamadas'
-            ];
-        }
-
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode($response));
+    public function ultimas_chamadas() {
+        header('Content-Type: application/json');
+    
+        // Última chamada de senha
+        $this->db->select('fc.id, fc.senha, fc.guiche, fc.data_entrada, fc.senha_id');
+        $this->db->from('fila_chamadas fc');
+        $this->db->join('senhas s', 's.id = fc.senha_id');
+        $this->db->where('s.status !=', 'finalizada');
+        $this->db->order_by('fc.id', 'DESC');
+        $this->db->limit(1);
+        $ultima_senha = $this->db->get()->row_array();
+    
+        // Última chamada de paciente
+        $this->db->order_by('id', 'DESC');
+        $this->db->limit(1);
+        $ultima_paciente = $this->db->get('pacientes')->row_array();
+    
+        // Fila de atendimento
+        $this->db->select('fc.id, fc.senha, fc.guiche, fc.data_entrada, fc.senha_id');
+        $this->db->from('fila_chamadas fc');
+        $this->db->join('senhas s', 's.id = fc.senha_id');
+        $this->db->where('s.status !=', 'finalizada');
+        $this->db->order_by('fc.id', 'DESC');
+        $this->db->limit(10);
+        $fila_atendimento = $this->db->get()->result_array();
+    
+        echo json_encode(array(
+            'status' => 'success',
+            'ultima_senha' => $ultima_senha,
+            'ultima_paciente' => $ultima_paciente,
+            'fila_atendimento' => $fila_atendimento
+        ));
     }
 
     public function proxima_senha() {
@@ -272,55 +275,61 @@ class Chamada2 extends CI_Controller
             ->set_output(json_encode($response));
     }
 
-    // No controller Chamada2.php
+   
     public function finalizar_atendimento() {
-        $this->load->model('Chamada_model');
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        $id = $this->input->post('id');
-        $status = $this->input->post('status');
-        $motivo = $this->input->post('motivo');
-    
-        // Atualiza ambas as tabelas em uma transação
-        $this->db->trans_start();
+        log_message('debug', 'Dados recebidos em finalizar_atendimento: ' . print_r($data, true));
         
-        // 1. Atualiza a tabela fila_chamadas
-        $this->db->where('id', $id)
-                 ->update('fila_chamadas', [
-                     'status' => $status,
-                     'data_finalizacao' => date('Y-m-d H:i:s'),
-                 ]);
-        
-        // 2. Identifica a última senha associada à chamada
-        $this->db->select('id')
-                 ->from('senhas')
-                 ->where('id_fila_chamada', $id)
-                 ->order_by('data_criacao', 'ASC') // Ordena pela data de emissão mais recente
-                 ->limit(1); // Pega apenas a última senha
-        $query = $this->db->get();
-        
-        if ($query->num_rows() > 0) {
-            $senha = $query->row();
-            
-            // Atualiza apenas a última senha encontrada
-            $this->db->where('id', $senha->id)
-                     ->update('senhas', [
-                         'status' => $status,
-                         'hora_finalizacao' => date('Y-m-d H:i:s')
-                     ]);
+        if (!$data) {
+            echo json_encode(array('status' => 'error', 'message' => 'Nenhum dado recebido'));
+            return;
         }
         
-        $this->db->trans_complete();
-    
-        if ($this->db->trans_status() === FALSE) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Falha ao atualizar as tabelas'
-            ]);
+        $id = isset($data['id']) ? $data['id'] : null;
+        $status = isset($data['status']) ? $data['status'] : null;
+        $motivo = isset($data['motivo']) ? $data['motivo'] : null;
+        
+        if (!$id || !$status) {
+            echo json_encode(array('status' => 'error', 'message' => 'ID ou status inválido'));
+            return;
+        }
+        
+        $this->db->where('id', $id);
+        $query = $this->db->get('senhas');
+        log_message('debug', 'Linhas encontradas para ID ' . $id . ': ' . $query->num_rows());
+        
+        if ($query->num_rows() == 0) {
+            echo json_encode(array('status' => 'error', 'message' => 'ID ' . $id . ' não encontrado na tabela senhas'));
+            return;
+        }
+        
+        $current_data = $query->row_array();
+        log_message('debug', 'Dados atuais da senha ID ' . $id . ': ' . print_r($current_data, true));
+        
+        $this->db->where('id', $id)->update('senhas', array(
+            'status' => $status,
+            'motivo' => $motivo,
+            'hora_finalizacao' => date('Y-m-d H:i:s')
+        ));
+        
+        $error = $this->db->error();
+        if ($error['code'] != 0) {
+            log_message('error', 'Erro no banco ao atualizar ID ' . $id . ': ' . $error['message']);
+            echo json_encode(array('status' => 'error', 'message' => 'Erro no banco: ' . $error['message']));
+            return;
+        }
+        
+        if ($this->db->affected_rows() > 0) {
+            echo json_encode(array('status' => 'success', 'message' => 'Atendimento finalizado'));
         } else {
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Atendimento finalizado com sucesso'
-            ]);
+            log_message('error', 'Nenhuma alteração realizada para ID ' . $id . '. Dados enviados: ' . print_r(array(
+                'status' => $status,
+                'motivo' => $motivo,
+                'data_finalizacao' => date('Y-m-d H:i:s')
+            ), true));
+            echo json_encode(array('status' => 'error', 'message' => 'Nenhuma alteração realizada. O status já pode ser o mesmo ou o ID não existe.'));
         }
     }
 
