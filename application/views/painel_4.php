@@ -8,18 +8,13 @@
     <style>
         :root {
             --cor-primaria: <?php echo isset($config->primary_color) ? $config->primary_color : '#1e90ff'; ?>;
-            --cor-primaria-transparente: <?php echo isset($config->primary_color) ? adjustBrightness($config->primary_color, 0, 0.9) : 'rgba(30, 144, 255, 0.9)'; ?>;
+            --cor-primaria-transparente: <?php echo isset($config->primary_color) ? adjustBrightness($config->primary_color, 0, 0.8) : 'rgba(30, 144, 255, 0.8)'; ?>;
             --cor-primaria-light: <?php echo isset($config->primary_color) ? adjustBrightness($config->primary_color, 50) : '#87cefa'; ?>;
             --cor-borda-aside: rgba(90, 90, 90, 0.6);
             --cor-espaco-divs: rgba(120, 120, 120, 0.3);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Outfit', Arial, sans-serif;
             background: #E3E9EB;
@@ -30,185 +25,114 @@
         }
 
         .container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            position: relative;
+            width: 100%; height: 100%; display: flex; position: relative; gap: 20px;
         }
 
         aside {
             width: 30%;
-            background: var(--cor-primaria-transparente);
+            background: var(--cor-primaria);
             backdrop-filter: blur(10px);
             border-right: 3px solid var(--cor-borda-aside);
-            display: flex;
-            flex-direction: column;
-            padding: 50px;
-            gap: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex; flex-direction: column;
+            padding: 50px; gap: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .logo-interna {
-            height: 20%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.1);
+            height: 20%; display: flex; justify-content: center; align-items: center;
+            background: rgba(255,255,255,0.1);
             border-radius: 10px;
             border: 1px solid var(--cor-primaria-transparente);
         }
 
-        .logo-interna img {
+        .logo-interna img { 
             max-width: 80%;
-            max-height: 80%;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
-        }
+            max-height: 80%; 
+            object-fit: contain; 
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); }
+
+        .logo-interna img:hover { filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
 
         .ultimas-chamadas {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            color: #fff !important;
+            flex:1; display:flex; flex-direction:column;
+            background: var(--cor-primaria-transparente);
+            border-radius:10px; padding:15px;
+            color:#fff !important;
         }
-
-        .ultimas-chamadas h2 {
-            text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #fff !important;
+        .ultimas-chamadas h2 { 
+            text-align:center; 
+            font-size:2.4rem; 
+            margin-bottom:1rem; }
+        .lista-chamadas li { 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center;
+            padding:1rem 1.5rem; 
+            margin:0.5rem 0;
+            background: var(--cor-primaria-transparente);
+            border-radius:8px; border-left:4px solid var(--cor-primaria);
+            transition: all 0.3s ease; box-shadow:0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .lista-chamadas li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            margin: 0.5rem 0;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid var(--cor-primaria);
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .lista-chamadas li:hover {
-            transform: translateX(5px);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform:translateX(5px);
+            background: var(--cor-primaria-light);
         }
-
-        .lista-chamadas li span:first-child {
-            font-size: 1.8rem !important;
-            font-weight: 600;
-            color: #fff;
-        }
-
+        .lista-chamadas li span:first-child { 
+            font-size:2rem; 
+            font-weight:600; }
         .lista-chamadas li span:last-child {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-weight: 500;
-            font-size: 1.2rem;
+            background:rgba(255,255,255,0.1); 
+            padding:0.4rem 1rem; 
+            border-radius:20px; 
+            font-size:1.6rem;
         }
 
-        /* === ESPAÇAMENTO DISCRETO ENTRE OS BLOCOS === */
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 10px;       /* pouco espaço ao redor */
-            gap: 0;               /* removido gap automático */
+            flex:1; display:flex; flex-direction:column;
+            padding:10px; gap:0;
         }
-        .main-content > div {
-            margin: 5px 0;       /* separa header e media com 5px */
-        }
+        .main-content > div { margin:5px 0; }
+
         .header-chamada {
-            height: 40%;
-            background: var(--cor-primaria-transparente);
+            height:40%;
+            background: var(--cor-primaria);
             backdrop-filter: blur(10px);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 15px;
-            margin-bottom: 0;    /* já controlado pela margin acima */
-            padding: 20px;       /* acolchoado interno */
-            border: 1px solid var(--cor-primaria-transparente);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            color:white;
+            display:flex; flex-direction:column; justify-content:center; align-items:center;
+            border-radius:15px;
+            padding:20px;
+            border:1px solid var(--cor-primaria-transparente);
+            box-shadow:0 4px 15px rgba(0,0,0,0.5);
         }
+        .header-chamada h2 { 
+            font-size:3.6vw; 
+            font-weight:700; 
+            text-transform:uppercase; 
+            margin-bottom:2%; }
+        .chamada { 
+            display:flex; 
+            justify-content:center; 
+            gap:3vw; 
+            font-size:3vw; 
+            font-weight:bold; }
+
         .media-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: var(--cor-primaria-transparente);
-            border-radius: 15px;
-            border: 1px solid var(--cor-primaria-transparente);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            padding: 20px;       /* acolchoado interno */
-        }
-        /* === FIM === */
-
-        .header-chamada h2 {
-            font-size: 3vw;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 2%;
-            color: white;
+            flex:1; display:flex; justify-content:center; align-items:center;
+            background: var(--cor-primaria);
+            border-radius:15px;
+            border:1px solid var(--cor-primaria-transparente);
+            box-shadow:0 4px 15px rgba(0,0,0,0.2);
+            padding:20px;
         }
 
-        .chamada {
-            display: flex;
-            justify-content: center;
-            gap: 3vw;
-            font-size: 4vw;
-            font-weight: bold;
-            color: white;
-        }
+        .config-media { max-width:90%; max-height:90%; border-radius:10px; object-fit:contain; }
+        .config-media video { max-width:90%; max-height:90%; }
 
-        @keyframes piscar {
-            0% { opacity: 1; text-shadow: 0 0 10px var(--cor-primaria); }
-            50% { opacity: 0.5; text-shadow: 0 0 20px var(--cor-primaria-light); }
-            100% { opacity: 1; text-shadow: 0 0 10px var(--cor-primaria); }
-        }
-
-        .chamada.piscando {
-            animation: piscar 0.5s ease-in-out 3;
-            transform: translateZ(0);
-        }
-
-        .config-media {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 10px;
-            object-fit: contain;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .config-media video {
-            max-width: 90%;
-            max-height: 90%;
-        }
-
-        .relogio {
-            position: absolute;
-            bottom: 20px;
-            left: 5%;
-            font-size: 1vw;
-            font-weight: bold;
-            color: white;
-            background: var(--cor-primaria-transparente);
-            padding: 10px 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 15px var(--cor-primaria);
-            border: 2px solid var(--cor-primaria);
+        .relogio { position:absolute; bottom:20px; left:5%; font-size:1vw; font-weight:bold;
+            color:white; background: var(--cor-primaria-transparente);
+            padding:10px 15px; border-radius:10px;
+            box-shadow:0 0 15px var(--cor-primaria);
+            border:2px solid var(--cor-primaria);
         }
     </style>
 </head>
@@ -219,7 +143,7 @@
                 <img src="<?php echo base_url('assets/imagens/Senha.png'); ?>" alt="Logo Interna">
             </div>
             <div class="ultimas-chamadas">
-                <h2 class="fw-bold text-center text-light">Últimas Chamadas</h2>
+                <h2>Últimas Chamadas</h2>
                 <ul id="listaChamadas" class="lista-chamadas"></ul>
             </div>
         </aside>
