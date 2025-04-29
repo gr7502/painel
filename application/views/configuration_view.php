@@ -70,7 +70,6 @@
             font-weight: 600;
         }
 
-        /* Restante do CSS permanece igual */
         .card {
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
@@ -250,10 +249,164 @@
             box-shadow: var(--box-shadow);
             object-fit: cover;
             transition: var(--transition);
+            cursor: pointer;
         }
 
         .preview-img:hover {
             transform: scale(1.02);
+        }
+
+        .switch-group {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .view-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 50px;
+        }
+
+        .view-option .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Estilos para o switch */
+        @supports (-webkit-appearance: none) or (-moz-appearance: none) {
+            .checkbox-wrapper-14 input[type=checkbox] {
+                --active: #275EFE;
+                --active-inner: #fff;
+                --focus: 2px rgba(39, 94, 254, .3);
+                --border: #BBC1E1;
+                --border-hover: #275EFE;
+                --background: #fff;
+                --disabled: #F6F8FF;
+                --disabled-inner: #E1E6F9;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                height: 21px;
+                outline: none;
+                display: inline-block;
+                vertical-align: top;
+                position: relative;
+                margin: 0;
+                cursor: pointer;
+                border: 1px solid var(--bc, var(--border));
+                background: var(--b, var(--background));
+                transition: background 0.3s, border-color 0.3s, box-shadow 0.2s;
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:after {
+                content: "";
+                display: block;
+                left: 0;
+                top: 0;
+                position: absolute;
+                transition: transform var(--d-t, 0.3s) var(--d-t-e, ease), opacity var(--d-o, 0.2s);
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:checked {
+                --b: var(--active);
+                --bc: var(--active);
+                --d-o: .3s;
+                --d-t: .6s;
+                --d-t-e: cubic-bezier(.2, .85, .32, 1.2);
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:disabled {
+                --b: var(--disabled);
+                cursor: not-allowed;
+                opacity: 0.9;
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:disabled:checked {
+                --b: var(--disabled-inner);
+                --bc: var(--border);
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:disabled + label {
+                cursor: not-allowed;
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:hover:not(:checked):not(:disabled) {
+                --bc: var(--border-hover);
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:focus {
+                box-shadow: 0 0 0 var(--focus);
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:not(.switch) {
+                width: 21px;
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:not(.switch):after {
+                opacity: var(--o, 0);
+            }
+            .checkbox-wrapper-14 input[type=checkbox]:not(.switch):checked {
+                --o: 1;
+            }
+            .checkbox-wrapper-14 input[type=checkbox] + label {
+                display: inline-block;
+                vertical-align: middle;
+                cursor: pointer;
+                margin-left: 4px;
+            }
+            .checkbox-wrapper-14 input[type=checkbox].switch {
+                width: 38px;
+                border-radius: 11px;
+            }
+            .checkbox-wrapper-14 input[type=checkbox].switch:after {
+                left: 2px;
+                top: 2px;
+                border-radius: 50%;
+                width: 17px;
+                height: 17px;
+                background: var(--ab, var(--border));
+                transform: translateX(var(--x, 0));
+            }
+            .checkbox-wrapper-14 input[type=checkbox].switch:checked {
+                --ab: var(--active-inner);
+                --x: 17px;
+            }
+            .checkbox-wrapper-14 input[type=checkbox].switch:disabled:not(:checked):after {
+                opacity: 0.6;
+            }
+        }
+
+        /* Estilos para o modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -280,6 +433,36 @@
                     <label for="primary_color">Cor Primária</label>
                     <input type="color" name="primary_color" id="primary_color" 
                            value="<?php echo isset($config->primary_color) ? $config->primary_color : '#6a5acd'; ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label>Escolha a Visualização do Painel</label>
+                    <div class="switch-group">
+                        <div class="view-option">
+                            <img src="<?php echo base_url('assets/imagens/previews/view1.png'); ?>" alt="Pré-visualização 1" class="preview-img">
+                            <div class="checkbox-wrapper-14">
+                                <input id="painel" type="checkbox" class="switch" name="panel_view" value="painel" <?php echo (isset($config->panel_view) && $config->panel_view == 'painel') ? 'checked' : ''; ?>>
+                            </div>
+                        </div>
+                        <div class="view-option">
+                            <img src="<?php echo base_url('assets/imagens/previews/view2.png'); ?>" alt="Pré-visualização 2" class="preview-img">
+                            <div class="checkbox-wrapper-14">
+                                <input id="painel_2" type="checkbox" class="switch" name="panel_view" value="painel_2" <?php echo (isset($config->panel_view) && $config->panel_view == 'painel_2') ? 'checked' : ''; ?>>
+                            </div>
+                        </div>
+                        <div class="view-option">
+                            <img src="<?php echo base_url('assets/imagens/previews/view3.png'); ?>" alt="Pré-visualização 3" class="preview-img">
+                            <div class="checkbox-wrapper-14">
+                                <input id="painel_3" type="checkbox" class="switch" name="panel_view" value="painel_3" <?php echo (isset($config->panel_view) && $config->panel_view == 'painel_3') ? 'checked' : ''; ?>>
+                            </div>
+                        </div>
+                        <div class="view-option">
+                            <img src="<?php echo base_url('assets/imagens/previews/view4.png'); ?>" alt="Pré-visualização 4" class="preview-img">
+                            <div class="checkbox-wrapper-14">
+                                <input id="painel_4" type="checkbox" class="switch" name="panel_view" value="painel_4" <?php echo (isset($config->panel_view) && $config->panel_view == 'painel_4') ? 'checked' : ''; ?>>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="tab-container">
@@ -318,6 +501,12 @@
                     <img src="<?php echo $config->image_url; ?>" alt="Imagem do Painel" class="preview-img" id="image-preview">
                 </div>
             <?php endif; ?>
+        </div>
+
+        <!-- Modal para visualização da imagem -->
+        <div id="imageModal" class="modal">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="modalImage">
         </div>
     </div>
 
@@ -364,7 +553,46 @@
                 preview.src = e.target.value;
             }
         });
+
+        // Controle do modal
+        var modal = document.getElementById("imageModal");
+        var modalImg = document.getElementById("modalImage");
+        var span = document.getElementsByClassName("close")[0];
+
+        document.querySelectorAll('.preview-img').forEach(function(img) {
+            img.addEventListener('click', function() {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            });
+        });
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const switches = document.querySelectorAll('.switch-group input[type="checkbox"]');
+        
+        switches.forEach(switchElem => {
+            switchElem.addEventListener('change', function() {
+                if (this.checked) {
+                    switches.forEach(otherSwitch => {
+                        if (otherSwitch !== this) {
+                            otherSwitch.checked = false;
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
 

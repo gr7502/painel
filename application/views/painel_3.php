@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-light: #6366f1;
-            --primary-dark: #4338ca;
+            --primary: <?php echo isset($config->primary_color) ? $config->primary_color : '#4f46e5'; ?>;
+            --primary-light: <?php echo isset($config->primary_color) ? adjustBrightness($config->primary_color, 20) : '#6366f1'; ?>;
+            --primary-dark: <?php echo isset($config->primary_color) ? adjustBrightness($config->primary_color, -20) : '#4338ca'; ?>;
             --secondary: #10b981;
             --dark: #1e293b;
             --light: #f8fafc;
@@ -164,7 +164,7 @@
             bottom: 2%;
             left: 50%;
             transform: translateX(-50%);
-            height: 8%;
+            height: 10%;
             display: flex;
             align-items: center;
         }
@@ -194,7 +194,6 @@
             object-fit: cover;
         }
         
-        /* Animations */
         @keyframes pulse {
             0%, 100% { 
                 transform: scale(1); 
@@ -210,7 +209,6 @@
             animation: pulse 0.6s ease-in-out 3;
         }
         
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .panel {
                 width: 100%;
@@ -258,8 +256,6 @@
 </head>
 <body>
     <div class="panel">
-      
-
         <!-- Current Call -->
         <div class="current-call" id="chamada">
             <div class="call-info">
@@ -293,7 +289,7 @@
 
         <!-- Logo -->
         <div class="logo-container">
-            <img src="<?= base_url('assets/imagens/Senha.png') ?>" alt="Logo">
+            <img src="<?= base_url('assets/imagens/gees.png') ?>" alt="Logo">
         </div>
     </div>
 
@@ -436,5 +432,20 @@
             new Audio('<?= base_url('assets/sounds/alert.mp3') ?>').load();
         });
     </script>
+
+<?php
+function adjustBrightness($hex, $steps) {
+    $hex = str_replace('#', '', $hex);
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    
+    $r = max(0, min(255, $r + $steps));
+    $g = max(0, min(255, $g + $steps));
+    $b = max(0, min(255, $b + $steps));
+    
+    return '#' . sprintf("%02x%02x%02x", $r, $g, $b);
+}
+?>
 </body>
 </html>

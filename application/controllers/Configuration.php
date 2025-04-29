@@ -16,60 +16,126 @@ class Configuration extends CI_Controller {
         $this->load->view('configuration_view', $data);
     }
     
-    public function update() {
-        $data = [
-            'primary_color' => $this->input->post('primary_color'),
-            'image_url' => $this->input->post('image_url')
-        ];
-        var_dump($_FILES);
-        // die();
-        if (!empty($_FILES['image_file']['name'])) {
-            $config['upload_path'] = './uploads/';
-            $config['allowed_types'] = 'gif|jpg|png|jpeg|webp|mp4|mp3';
-            $config['max_size'] = 65535; // 64MB
-            $this->load->library('upload', $config);
-            
-            if ($this->upload->do_upload('image_file')) {
-
-                $upload_data = $this->upload->data();
-                $data['image_url'] = base_url('uploads/' . $upload_data['file_name']);
-            } else {
-                var_dump('não');
-                
-                $error = $this->upload->display_errors();
-
-                redirect('configuration?error=' . urlencode($error));
-            }
-        }
+    public function update(){
     
-        if ($this->Configuration_model->update_settings($data)) {
-            redirect('configuration?success=1');
+    $valid_views = ['painel', 'painel_2', 'painel_3', 'painel_4'];
+    $panel_view = $this->input->post('panel_view');
+    if (! in_array($panel_view, $valid_views)) {
+        redirect('configuration?error=invalid_panel_view');
+        return;
+    }
+
+    $data = [
+        'primary_color' => $this->input->post('primary_color'),
+        'image_url'     => $this->input->post('image_url'),
+        'panel_view'    => $panel_view,
+    ];
+
+   
+    if (!empty($_FILES['image_file']['name'])) {
+        $this->load->library('upload', [
+            'upload_path'   => './uploads/',
+            'allowed_types' => 'gif|jpg|png|jpeg|webp|mp4|mp3',
+            'max_size'      => 65535,
+        ]);
+        if ($this->upload->do_upload('image_file')) {
+            $up = $this->upload->data();
+            $data['image_url'] = base_url("uploads/{$up['file_name']}");
         } else {
-            redirect('configuration?error=1');
+            $error = $this->upload->display_errors();
+            redirect('configuration?error=' . urlencode($error));
+            return;
         }
     }
+
+    if ($this->Configuration_model->update_settings($data)) {
+        redirect('configuration?success=1');
+    } else {
+        redirect('configuration?error=1');
+    }
+}
+
+    public function panel(){
+        $config = $this->Configuration_model->get_config();
+        $valid_views = ['painel', 'painel_2', 'painel_3', 'painel_4'];
+        
+       
+        $view = in_array($config->panel_view, $valid_views)
+              ? $config->panel_view
+              : 'painel';
+        
+        $data = [
+            'config'           => $config,
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+        ];
+        
+        $this->load->view($view, $data);
+    }
+
 
     public function painel(){
-        $data['config'] = $this->Configuration_model->get_config();
-        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(5);
-        $this->load->view('painel', $data);
+        $config = $this->Configuration_model->get_config();
+        $valid_views = ['painel', 'painel_2', 'painel_3', 'painel_4'];
+        
+        $view = in_array($config->panel_view, $valid_views)
+            ? $config->panel_view
+            : 'painel';
+        
+        $data = [
+            'config'           => $config,
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+        ];
+        
+        $this->load->view($view, $data);
     }
-    
+
+
     public function painel_2(){
-        $data['config'] = $this->Configuration_model->get_config();
-        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(7);
-        $this->load->view('painel_2', $data);
+        $config = $this->Configuration_model->get_config();
+        $valid_views = ['painel', 'painel_2', 'painel_3', 'painel_4'];
+        
+    
+        $view = in_array($config->panel_view, $valid_views)
+            ? $config->panel_view
+            : 'painel_2';
+        
+        $data = [
+            'config'           => $config,
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+        ];
+        
+        $this->load->view($view, $data);
     }
 
     public function painel_3(){
-        $data['config'] = $this->Configuration_model->get_config();
-        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(5);
-        $this->load->view('painel_3', $data);
+        $config = $this->Configuration_model->get_config();
+        $valid_views = ['painel', 'painel_2', 'painel_3', 'painel_4'];
+        
+        $view = in_array($config->panel_view, $valid_views)
+            ? $config->panel_view
+            : 'painel_3';
+        
+        $data = [
+            'config'           => $config,
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+        ];
+        
+        $this->load->view($view, $data);
     }
 
     public function painel_4(){
-        $data['config'] = $this->Configuration_model->get_config();
-        $data['ultimasChamadas'] = $this->Chamada_model->get_ultimas_chamadas(7);
-        $this->load->view('painel_4', $data);
+        $config = $this->Configuration_model->get_config();
+        $valid_views = ['painel', 'painel_2', 'painel_3', 'painel_4'];
+        
+        $view = in_array($config->panel_view, $valid_views)
+            ? $config->panel_view
+            : 'painel_4';
+        
+        $data = [
+            'config'           => $config,
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+        ];
+        
+        $this->load->view($view, $data);
     }
 }

@@ -152,8 +152,8 @@
             <div class="header-chamada">
                 <h2>Última Chamada</h2>
                 <div class="chamada" id="chamada">
-                    <div id="senhaAtual">Carregando...</div>
-                    <div id="guicheAtual">Carregando...</div>
+                    <div id="senhaAtual"> - - -</div>
+                    <div id="guicheAtual"> - - -</div>
                 </div>
             </div>
             <div class="media-container">

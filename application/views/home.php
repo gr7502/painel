@@ -14,8 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <?php
-    // Função para ajustar o brilho da cor
-    function adjustBrightness($hex, $steps, $opacity = 1) {
+        function adjustBrightness($hex, $steps, $opacity = 1) {
         $hex = str_replace('#', '', $hex);
         $r = hexdec(substr($hex, 0, 2));
         $g = hexdec(substr($hex, 2, 2));
@@ -31,13 +30,13 @@
         return '#' . sprintf("%02x%02x%02x", $r, $g, $b);
     }
 
-    // Definindo a cor primária a partir do banco de dados
-    $primary_color = isset($config->primary_color) ? $config->primary_color : '#4f46e5'; // Cor padrão caso não exista
-    $secondary_color = adjustBrightness($primary_color, 30); // Cor secundária mais clara
-    $accent_color = adjustBrightness($primary_color, 50); // Cor de destaque mais clara
-    $text_color = '#1f2937'; // Cor de texto fixa
-    $light_bg = '#f8fafc'; // Fundo claro fixo
-    $shadow_color = 'rgba(0, 0, 0, 0.1)'; // Sombra fixa
+   
+    $primary_color = isset($config->primary_color) ? $config->primary_color : '#4f46e5';
+    $secondary_color = adjustBrightness($primary_color, 30); 
+    $accent_color = adjustBrightness($primary_color, 50); 
+    $text_color = '#1f2937'; 
+    $light_bg = '#f8fafc'; 
+    $shadow_color = 'rgba(0, 0, 0, 0.1)'; 
     ?>
 
     <style>
@@ -315,8 +314,10 @@
         <div class="collapse" id="menuPainel">
             <a href="<?= base_url('chamada/index'); ?>" class="d-block ms-4"><i class="bi bi-layers-fill me-2"></i> <span>Chamar
                 senha</span></a>
-            <a href="<?= base_url('configuration/painel_2'); ?>" class="d-block ms-4"><i class="bi bi-dash-square-fill me-2"></i>
-                <span>Painel</span></a>
+            <a href="<?= base_url('configuration/'.$panel_view); ?>" class="d-block ms-4">
+                <i class="bi bi-dash-square-fill me-2"></i>
+                <span>Painel</span>
+            </a>
         </div>
 
         <!-- Menu Configurações -->
