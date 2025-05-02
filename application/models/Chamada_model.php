@@ -150,15 +150,13 @@ class Chamada_model extends CI_Model {
         return $this->db->insert('fila_chamadas', $dados);
     }
     
-    public function finalizar_chamada($senha, $guiche) {
-        // Marca a chamada específica como finalizada
-        $this->db->where('senha', $senha)
-                 ->where('guiche', $guiche)
-                 ->where('status', 'pendente')
-                 ->update('fila_chamadas', [
-                     'status' => 'finalizada',
-                     'hora_finalizacao' => date('Y-m-d H:i:s')
-                 ]);
+    public function finalizar_chamada($id) {
+        return $this->db
+        ->where('id', $id)
+        ->update('senhas', [
+            'status'           => 'finalizada',
+            'hora_finalizacao' => date('Y-m-d H:i:s'),
+        ]);
     }
     
     public function obter_chamadas_ativas() {
@@ -183,4 +181,39 @@ class Chamada_model extends CI_Model {
         
         return $this->db->insert_id();
     }
+
+    public function get_senhas_pendentes() {
+        return $this->db->where('status', 'pendente')
+                        ->get('senhas')
+                        ->result();
+    }
+
+    // Obtém as últimas senhas chamadas ou finalizadas da tabela 'senhas'
+    public function get_ultimas_chamadas_senhas($limit = 5) {
+        return $this->db->where('status !=', 'pendente')
+                        ->order_by('id', 'DESC')
+                        ->limit($limit)
+                        ->get('senhas')
+                        ->result();
+    }
+
+    // Finaliza uma senha específica na tabela 'senhas'
+    public function finalizar_senha($id) {
+        $this->db->where('id', $id)
+                 ->update('senhas', [
+                     'status' => 'finalizada',
+                     'hora_finalizacao' => date('Y-m-d H:i:s')
+                 ]);
+    }
+
+    public function buscar_proxima_senha_hoje(){
+    $hoje = date('Y-m-d');
+    return $this->db
+        ->where('status', 'pendente')
+        ->where("DATE(data_criacao) =", $hoje)  // só hoje
+        ->order_by('numero', 'ASC')
+        ->limit(1)
+        ->get('senhas')
+        ->row();
+}
 }

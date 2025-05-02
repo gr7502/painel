@@ -39,35 +39,34 @@ class Senhas extends CI_controller {
     }
     
     public function gerar_senha($tipo_id) {
-        // Verifica se o ID do tipo de senha foi recebido corretamente
         if (!$tipo_id) {
             echo json_encode(["error" => "ID do tipo de senha não recebido."]);
             return;
         }
-    
-        // Carrega os modelos
-        $this->load->model('Senhas_model');
-        $this->load->model('TiposSenha_model');
-    
-        // Obtém o tipo de senha
+
+        // busca o tipo
         $tipo = $this->TiposSenha_model->get_tipo_by_id($tipo_id);
-    
-        // Verifica se o tipo de senha foi encontrado
         if (!$tipo) {
             echo json_encode(["error" => "Tipo de senha não encontrado."]);
             return;
         }
-    
-        // Pega o próximo número para o tipo de senha
-        $next_number = $this->Senhas_model->get_next_number($tipo->prefixo);
-    
-        // Gera a senha
+
+        // data de hoje (YYYY-MM-DD)
+        $hoje = date('Y-m-d');
+
+        // conta quantas senhas desse tipo já foram criadas hoje
+        $totalHoje = $this->Senhas_model
+            ->count_by_tipo_and_date($tipo_id, $hoje);
+
+        // próximo número
+        $next_number = $totalHoje + 1;
+        // monta a senha com prefixo e zero-fill
         $senha = $tipo->prefixo . '-' . str_pad($next_number, 2, '0', STR_PAD_LEFT);
-    
-        // Insere a senha no banco de dados
-        $insert = $this->Senhas_model->insert_senha($tipo_id, $next_number, $senha);
-    
-        // Verifica se a inserção foi bem-sucedida
+
+        // insere
+        $insert = $this->Senhas_model
+            ->insert_senha($tipo_id, $next_number, $senha, $hoje);
+
         if ($insert) {
             echo json_encode(["success" => "Senha gerada: " . $senha]);
         } else {
@@ -80,32 +79,31 @@ class Senhas extends CI_controller {
             echo json_encode(["error" => "ID do subtipo de senha não recebido."]);
             return;
         }
-    
-        $this->load->model('Senhas_model');
-        $this->load->model('TiposSenha_model');
-    
-        // Obtém o subtipo e o tipo associado
+
+        // obtém subtipo e tipo
         $subtipo = $this->TiposSenha_model->get_subtipo_by_id($subtipo_id);
         if (!$subtipo) {
             echo json_encode(["error" => "Subtipo de senha não encontrado."]);
             return;
         }
-    
+
         $tipo = $this->TiposSenha_model->get_tipo_by_id($subtipo->tipo_senha_id);
         if (!$tipo) {
             echo json_encode(["error" => "Tipo de senha não encontrado."]);
             return;
         }
-    
-        // Pega o próximo número para o subtipo
-        $next_number = $this->Senhas_model->get_next_number_subtipo($subtipo->id);
-    
-        // Gera a senha usando apenas o prefixo do subtipo
+
+        $hoje = date('Y-m-d');
+        // conta quantas senhas desse subtipo já hoje
+        $totalHoje = $this->Senhas_model
+            ->count_by_subtipo_and_date($subtipo_id, $hoje);
+
+        $next_number = $totalHoje + 1;
         $senha = $subtipo->prefixo . '-' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
-    
-        // Insere a senha no banco de dados, incluindo o tipo_senha_id
-        $insert = $this->Senhas_model->insert_senha_subtipo($subtipo->id, $subtipo->tipo_senha_id, $next_number, $senha);
-    
+
+        $insert = $this->Senhas_model
+            ->insert_senha_subtipo($subtipo->id, $subtipo->tipo_senha_id, $next_number, $senha, $hoje);
+
         if ($insert) {
             echo json_encode(["success" => $senha]);
         } else {

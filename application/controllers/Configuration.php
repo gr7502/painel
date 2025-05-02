@@ -83,7 +83,7 @@ class Configuration extends CI_Controller {
         
         $data = [
             'config'           => $config,
-            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(4),
         ];
         
         $this->load->view($view, $data);
@@ -101,7 +101,7 @@ class Configuration extends CI_Controller {
         
         $data = [
             'config'           => $config,
-            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(5),
+            'ultimasChamadas'  => $this->Chamada_model->get_ultimas_chamadas(6),
         ];
         
         $this->load->view($view, $data);

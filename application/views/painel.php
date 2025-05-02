@@ -474,7 +474,7 @@
 
             if (data.status === "success" && data.chamadas && data.chamadas.length > 0) {
                 // Limita aos últimos 5 chamados
-                const ultimosCinco = data.chamadas.slice(0, 5);
+                const ultimosCinco = data.chamadas.slice(0, 4);
                   ultimosCinco.forEach(chamada => {
                       const novoChamado = document.createElement('div');
                       novoChamado.className = 'chamado-card';
